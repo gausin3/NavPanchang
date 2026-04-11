@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NavPanchang</string>
+
+    <!-- Bottom navigation labels. -->
+    <string name="nav_home">Home</string>
+    <string name="nav_calendar">Calendar</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Phase 0 scaffold placeholders. Replaced in Phase 5+. -->
+    <string name="scaffold_home_placeholder">Subscriptions home — coming soon.</string>
+    <string name="scaffold_calendar_placeholder">Panchang calendar — coming soon.</string>
+    <string name="scaffold_settings_placeholder">Settings — coming soon.</string>
+
+    <!-- Event catalog (seeded from events.json). Full list grows in Phase 3. -->
+    <string name="event_shukla_ekadashi">Shukla Ekadashi</string>
+    <string name="event_krishna_ekadashi">Krishna Ekadashi</string>
+    <string name="event_purnima">Purnima</string>
+    <string name="event_amavasya">Amavasya</string>
+    <string name="event_pradosh_shukla">Pradosh (Shukla)</string>
+    <string name="event_pradosh_krishna">Pradosh (Krishna)</string>
+    <string name="event_sankashti_chaturthi">Sankashti Chaturthi</string>
+    <string name="event_vinayaka_chaturthi">Vinayaka Chaturthi</string>
+    <string name="event_masik_shivratri">Masik Shivratri</string>
+    <string name="event_mahashivratri">Mahashivratri</string>
+
+    <!-- PreparationCard states. -->
+    <string name="state_preparing_tomorrow">Preparing for Tomorrow</string>
+    <string name="state_observing_today">Observing Today</string>
+    <string name="state_parana_window">Parana window</string>
+
+    <!-- Notification channels. -->
+    <string name="channel_event_reminders_name">Event Reminders</string>
+    <string name="channel_event_reminders_desc">Planning reminders the evening before a subscribed event.</string>
+    <string name="channel_ritual_alarms_name">Ritual Alarms</string>
+    <string name="channel_ritual_alarms_desc">Sunrise and Parana alarms with ritual sounds.</string>
+    <string name="channel_daily_briefing_name">Daily Briefing</string>
+    <string name="channel_daily_briefing_desc">Optional 7 AM summary of today\'s panchang.</string>
+
+    <!-- Licensing (visible in About screen). -->
+    <string name="licensing_summary">NavPanchang uses the Swiss Ephemeris library by Astrodienst AG (Java port by Thomas Mack) and is licensed under AGPL v3. Source code is available on GitHub.</string>
+
+    <!-- Settings home-city section. -->
+    <string name="settings_home_city_title">Home city</string>
+    <string name="settings_home_city_not_set">Not set — tap to pick</string>
+    <string name="settings_home_city_search_hint">Search cities</string>
+    <string name="settings_home_city_use_gps">Use current location</string>
+    <string name="settings_home_city_no_match">No cities match your search.</string>
+
+    <!-- Settings reliability check. -->
+    <string name="settings_reliability_title">Reliability check</string>
+    <string name="settings_reliability_battery">Battery optimization disabled</string>
+    <string name="settings_reliability_exact_alarms">Exact-alarm permission</string>
+    <string name="settings_reliability_fix">Fix</string>
+    <string name="settings_reliability_all_green">All set — alarms will fire reliably.</string>
+    <string name="settings_reliability_warning">Some reliability checks are failing. Alarms may be delayed or silent.</string>
+
+    <!-- Settings sunrise offset slider. -->
+    <string name="settings_sunrise_offset_title">Sunrise time offset</string>
+    <string name="settings_sunrise_offset_value">%1$d minutes</string>
+    <string name="settings_sunrise_offset_hint">Use this only if NavPanchang\'s sunrise consistently differs from your trusted paper panchang. Range: −2 to +2 minutes.</string>
+
+    <!-- Settings about. -->
+    <string name="settings_about_title">About</string>
+    <string name="about_tagline">A subscription-first panchang and alarm app for Hindu vrat observers.</string>
+    <string name="about_licensing_header">Licensing &amp; source</string>
+    <string name="about_swisseph_credit">Swiss Ephemeris copyright © Astrodienst AG. The Java port used here is by Thomas Mack. Licensed under AGPL v3.</string>
+    <string name="about_source_code_hint">The full NavPanchang source code is available on GitHub — the link is embedded in your about-screen build and in the Play Store listing.</string>
+
+    <!-- Calendar tab placeholders — extended for Phase 6. -->
+    <string name="calendar_month_header">%1$s %2$d</string>
+    <string name="calendar_day_detail_sunrise">Sunrise: %1$s</string>
+    <string name="calendar_day_detail_sunset">Sunset: %1$s</string>
+    <string name="calendar_day_detail_tithi">Tithi: %1$s</string>
+    <string name="calendar_day_detail_nakshatra">Nakshatra: %1$s</string>
+    <string name="calendar_day_detail_adhik_info">This is an Adhik (intercalary) month — regular vrats still fire, but annual festivals are deferred to the next (Nija) month.</string>
+    <string name="calendar_day_detail_kshaya_info">A Kshaya tithi today — began and ended between two sunrises. NavPanchang observes it on the day of longest prevalence.</string>
+    <string name="calendar_day_detail_close">Close</string>
+
+    <!-- Notification copy. `%1$s` = event name, `%2$s` = formatted sunrise time. -->
+    <string name="notification_planner_title">%1$s is tomorrow</string>
+    <string name="notification_planner_body">Prepare for %1$s. Sunrise will be at %2$s — plan your meal and any arrangements tonight.</string>
+
+    <string name="notification_observer_title">%1$s starts today</string>
+    <string name="notification_observer_body">%1$s has begun. Sunrise is %2$s.</string>
+
+    <string name="notification_parana_title">%1$s parana window open</string>
+    <string name="notification_parana_body">Break your fast between %1$s and %2$s today.</string>
+
+    <string name="notification_action_remind_at_sunrise">Remind me at sunrise</string>
+    <string name="notification_action_dismiss">Dismiss</string>
+
+    <!-- Home screen. -->
+    <string name="today_status_label">Today</string>
+    <string name="today_status_nakshatra">Nakshatra: %1$s (%2$s)</string>
+    <string name="home_subscriptions_header">Your subscriptions</string>
+    <string name="home_add_more">Add more events</string>
+    <string name="home_no_subscriptions">You aren\'t subscribed to any events yet. Add one below to start receiving alarms.</string>
+    <string name="home_city_missing_title">Set your home city</string>
+    <string name="home_city_missing_body">NavPanchang needs to know your home city to compute sunrise times for your alarms. Open Settings to pick one.</string>
+
+    <string name="subscription_row_computing">Computing next occurrence…</string>
+    <string name="subscription_row_next_today">Next: %1$s (today)</string>
+    <string name="subscription_row_next_tomorrow">Next: %1$s (tomorrow)</string>
+    <string name="subscription_row_next_in_days">Next: %1$s (in %2$d days)</string>
+    <string name="subscription_row_next_generic">Next: %1$s</string>
+
+    <!-- PreparationCard copy. -->
+    <string name="state_preparing_sunrise_in">Sunrise in %1$d hours — prepare tonight.</string>
+    <string name="state_observing_sunrise">Sunrise at %1$s</string>
+    <string name="state_parana_between">Break your fast between %1$s and %2$s.</string>
+
+    <!-- Event detail screen. -->
+    <string name="event_detail_title">Event</string>
+    <string name="event_detail_subscription_enabled">Subscribed</string>
+    <string name="event_detail_alarms_header">Alarms</string>
+    <string name="event_detail_planner_toggle">Planner (evening before)</string>
+    <string name="event_detail_observer_toggle">Observer (sunrise)</string>
+    <string name="event_detail_parana_toggle">Parana (fast-breaking window)</string>
+    <string name="event_detail_upcoming_header">Upcoming</string>
+    <string name="event_detail_no_upcoming">No upcoming occurrences yet — the lookahead is still running.</string>
+    <string name="event_detail_sunrise_at">Sunrise at %1$s</string>
+    <string name="event_detail_parana_window">Parana: %1$s – %2$s</string>
+    <string name="event_detail_shifted_viddha">Shifted — Dashami-Viddha</string>
+    <string name="event_detail_kshaya_context">Kshaya tithi — observed on safe-fallback day</string>
+
+    <!-- Onboarding. -->
+    <string name="onboarding_welcome_title">Welcome to NavPanchang</string>
+    <string name="onboarding_welcome_body">Subscribe once to every Ekadashi, Purnima, or other Hindu vrat and get an alarm at sunrise on each day. No hunting through a panchang.</string>
+    <string name="onboarding_permissions_title">A few permissions</string>
+    <string name="onboarding_permissions_body">We need location for sunrise calculation, notifications for alarms, and exact-alarm permission so alarms fire at the exact sunrise minute.</string>
+    <string name="onboarding_continue">Continue</string>
+    <string name="onboarding_done">Start using NavPanchang</string>
+</resources>

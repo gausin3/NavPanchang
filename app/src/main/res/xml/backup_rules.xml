@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Backup rules — exclude computed ephemeris cache and in-flight alarm PendingIntent state.
+  Subscriptions and user preferences ARE backed up so a phone migration preserves the user's choices.
+-->
+<full-backup-content>
+    <include domain="database" path="navpanchang.db" />
+    <include domain="sharedpref" path="user_prefs.xml" />
+    <exclude domain="file" path="ephe/" />
+</full-backup-content>

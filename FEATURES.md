@@ -1,0 +1,188 @@
+# NavPanchang — Feature Catalog
+
+This document lists every user-visible feature, tagged by release phase. For the "why", see [`MEMORY.md`](MEMORY.md). For the "how", see [`TECH_DESIGN.md`](TECH_DESIGN.md).
+
+**Legend**
+- 🟢 Shipped in v1 (MVP)
+- 🟡 Planned for next release
+- ⚪ Deferred / out-of-scope for v1
+
+---
+
+## Subscriptions & alarms 🟢
+
+### F-1. Event subscription toggles
+Turn any supported event on or off with a single tap from the home screen. Enabled events appear with a "Next occurrence" subtitle.
+
+### F-2. MVP event catalog
+Ten recurring events shipped in v1:
+
+| Event | Category | Observer rule | Has Parana? | Observed in Adhik Maas? |
+|---|---|---|---|---|
+| Shukla Ekadashi | Vrat | Tithi 11 at sunrise (with Dashami-Viddha) | ✓ | ✓ |
+| Krishna Ekadashi | Vrat | Tithi 26 at sunrise (with Dashami-Viddha) | ✓ | ✓ |
+| Purnima | Vrat | Tithi 15 at sunrise | — | ✓ |
+| Amavasya | Vrat | Tithi 30 at sunrise | — | ✓ |
+| Pradosh (Shukla) | Puja | Tithi 13 in the evening | — | ✓ |
+| Pradosh (Krishna) | Puja | Tithi 28 in the evening | — | ✓ |
+| Sankashti Chaturthi | Vrat | Tithi 19 at sunrise | — | ✓ |
+| Vinayaka Chaturthi | Vrat | Tithi 4 at sunrise | — | ✗ (suppressed in Adhik) |
+| Masik Shivratri | Vrat | Tithi 29 at sunrise | — | ✓ |
+| Mahashivratri | Festival | Phalguna Krishna Chaturdashi | — | ✗ (Nija Phalguna only) |
+
+### F-3. Dual-alarm model
+Every subscribed event schedules two alarms:
+
+- **Planner** — 8:00 PM the day before (wall-clock local time, configurable per event). Low-importance `channel_event_reminders` channel.
+- **Observer** — Local sunrise on the day of the event (GPS-based). High-importance `channel_ritual_alarms` channel with a temple-bell sound.
+
+### F-4. Parana alarm (Ekadashi only)
+A third alarm fires at sunrise on Dvadashi (the morning after an Ekadashi fast) with the computed Parana window: `"Break your fast between 5:44 AM and 9:18 AM."`
+
+### F-5. Per-sub-alarm toggles
+Within the Event Detail screen, independently enable/disable Planner / Observer / Parana for any subscribed event.
+
+### F-6. Custom Planner time
+Override the default 8:00 PM to any wall-clock local time.
+
+### F-7. Custom alarm sound
+Choose from four bundled ritual audio clips: temple bell, conch (sankh), bell toll, soft Om mantra. Each maps to a separate notification channel so the user's per-channel DND settings stick.
+
+### F-8. "Remind me at Sunrise" notification action
+The Planner notification includes a safety-net action button. Tapping it schedules a one-shot Observer alarm for the upcoming sunrise — handles the "busy evening, meant to act on it but forgot" case.
+
+### F-9. Late-subscription gate
+Enabling a subscription after the Planner time has already passed shows a green "Observing Tomorrow" card on the home screen instead of firing a confusing retroactive notification.
+
+### F-10. Daily Morning Briefing 🟢 (opt-in)
+Optional 7:00 AM notification summarizing today's tithi and any subscribed event. Low-importance channel so it never wakes the user. Off by default.
+
+---
+
+## Panchang view 🟢
+
+### F-11. Today status card
+Home screen always shows today's tithi, nakshatra, sunrise, and sunset — even with zero subscriptions — so the user trusts the app is calculating correctly.
+
+### F-12. Preparation card
+A live state card above the subscription list:
+
+- **Yellow "Preparing for Tomorrow"** between now and the Planner alarm (roughly 24 h before an event).
+- **Green "Observing Today"** from sunrise on the event day through Parana end.
+- **Cyan "Parana window"** during the Dvadashi fast-breaking window.
+- **Hidden** when no subscribed event is within 36 h.
+
+### F-13. Month calendar
+Grid view with Gregorian dates and a small tithi label per cell (`"शु ११"` / `"Sh 11"`). Subscribed-event days get a colored dot.
+
+### F-14. Day detail
+Tap any day to see the full panchang: tithi + end time, nakshatra + end time, yoga, karana, vara, sunrise, sunset, moonrise, moonset, plus any events occurring that day.
+
+### F-15. Adhik Maas indicator
+Month header shows `"Adhik Shravan 2023 (अधिक श्रावण)"` with an `(i)` tooltip explaining intercalary months and how vrats behave in them.
+
+### F-16. Kshaya tithi timeline
+Day detail screen draws a horizontal timeline for Kshaya tithis showing start time, end time, and the two surrounding sunrises, with an explanation of how NavPanchang handled the anomaly.
+
+---
+
+## Travel awareness 🟢
+
+### F-17. GPS-based sunrise calculation
+Observer and Parana alarms fire at the **current** GPS sunrise, not the home city's sunrise.
+
+### F-18. Travel detection (geofence)
+A 100 km geofence around the last-calculated location. Crossing it triggers a silent Tier 2 recompute of the next 30–60 days of high-precision occurrences.
+
+### F-19. Location badge
+When a current-location occurrence overrides the home-city value by ≥ 2 minutes, the UI and notification append "(Adjusted for Dubai time)" so the user learns the app is aware of travel rather than thinking it's broken.
+
+### F-20. Home city picker
+Settings → Home City opens a searchable list of bundled Indian + major world cities (with Hindi names where applicable) or lets the user drop a pin.
+
+---
+
+## Trust & verification 🟢
+
+### F-21. Sunrise time offset
+Settings slider for a manual ±1 / ±2 minute sunrise adjustment. Lets users reconcile NavPanchang with a trusted local paper panchang that uses a slightly different horizon refraction model, without editing the database.
+
+### F-22. Hindi labels
+All tithi, nakshatra, and event names display in both English and Hindi (Devanagari script). Language toggle in Settings is independent of the system locale.
+
+### F-23. Calculation tradition
+Settings shows the current ayanamsha (Lahiri) and tradition (Drik observational) with an About-link explanation. Hidden advanced options for Raman / KP are reserved in the schema but not exposed in v1.
+
+---
+
+## Reliability 🟢
+
+### F-24. Reliability Check section
+Settings screen lists the status of:
+
+- `USE_EXACT_ALARM` / `SCHEDULE_EXACT_ALARM` permission
+- `POST_NOTIFICATIONS` permission
+- Battery optimization whitelist
+- `ACCESS_BACKGROUND_LOCATION` (optional, for travel detection)
+
+Each row has a status pill and a one-tap "Fix" button. A red dot on the Settings bottom-nav tab surfaces unresolved issues.
+
+### F-25. Boot survival
+All pending alarms are re-armed after device reboot via `BootReceiver`.
+
+### F-26. Timezone-change survival
+Planner (wall-clock) alarms are cancelled and rescheduled on `ACTION_TIMEZONE_CHANGED` so "8 PM" follows the user across timezones.
+
+### F-27. Daily refresh worker
+A `PeriodicWorkRequest` runs once every 24 h to extend the lookahead window, prune stale data, and re-arm any alarms dropped by aggressive OEM background killers.
+
+---
+
+## Onboarding 🟢
+
+### F-28. First-run flow
+1. Welcome + one-paragraph purpose explanation (bilingual).
+2. Request `ACCESS_FINE_LOCATION` (skippable → city picker).
+3. Request `POST_NOTIFICATIONS`.
+4. Request exact-alarm permission.
+5. Prompt battery-optimization whitelist with clear "alarms may be delayed otherwise" copy.
+6. Set Home City (defaulted from GPS).
+7. Language toggle (English / हिन्दी).
+8. Pre-select sensible subscriptions (Ekadashi, Purnima, Amavasya).
+9. Run initial 24-month Tier 1 lookahead with a progress indicator (~4 s).
+10. Run initial 30-day Tier 2 lookahead (~0.5 s).
+
+---
+
+## Licensing & transparency 🟢
+
+### F-29. AGPL v3 + public source
+Source code on GitHub. About screen links to the repo. Bundled `LICENSE`, `swiss_ephemeris_LICENSE`, and `swiss_ephemeris_LEGAL` files. Play Store description ends with a source-availability note.
+
+### F-30. Third-party licenses list
+About → "Third-party licenses" opens a scrollable list generated at build time from Gradle dependencies.
+
+---
+
+## Planned — next release 🟡
+
+- **F-31. Annual festivals** — Diwali, Holi, Navratri, Janmashtami, Ram Navami, Rakshabandhan, Ganesh Chaturthi, Karva Chauth. The rule system already generalizes; just more `events.json` entries and a few new rule types.
+- **F-32. Widgets** — 2×2 home-screen widget showing "Today's tithi" and "Next subscribed event".
+- **F-33. Regional scripts** — Tamil, Telugu, Kannada, Bengali, Marathi, Gujarati.
+- **F-34. Import/export subscriptions** — JSON export/import so the user can move settings to a new device (complements Android's built-in backup).
+- **F-35. Share event** — "Share next Ekadashi date" to WhatsApp / Messages.
+
+---
+
+## Deferred ⚪
+
+- **F-36. Surya Siddhanta / Vakya panchang** — alternative traditions.
+- **F-37. Cloud sync** — multi-device subscription sync. Privacy implications need dedicated design work.
+- **F-38. Wear OS companion** — watch complication for "Today's tithi".
+- **F-39. Android Auto** — daily briefing spoken on commute.
+- **F-40. Multi-user profiles** — if the user's mom and dad have different subscription preferences on a shared device.
+- **F-41. Monetization** — explicitly deferred to "if/when the project has costs to cover". Not planned.
+
+---
+
+See [`USER_GUIDE.md`](USER_GUIDE.md) for how to actually use these features.

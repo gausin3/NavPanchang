@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">नवपञ्चाङ्ग</string>
+
+    <string name="nav_home">मुख्य</string>
+    <string name="nav_calendar">पंचांग</string>
+    <string name="nav_settings">सेटिंग्स</string>
+
+    <string name="scaffold_home_placeholder">सब्सक्रिप्शन होम — जल्द आ रहा है।</string>
+    <string name="scaffold_calendar_placeholder">पंचांग कैलेंडर — जल्द आ रहा है।</string>
+    <string name="scaffold_settings_placeholder">सेटिंग्स — जल्द आ रही हैं।</string>
+
+    <string name="event_shukla_ekadashi">शुक्ल एकादशी</string>
+    <string name="event_krishna_ekadashi">कृष्ण एकादशी</string>
+    <string name="event_purnima">पूर्णिमा</string>
+    <string name="event_amavasya">अमावस्या</string>
+    <string name="event_pradosh_shukla">प्रदोष (शुक्ल)</string>
+    <string name="event_pradosh_krishna">प्रदोष (कृष्ण)</string>
+    <string name="event_sankashti_chaturthi">संकष्टी चतुर्थी</string>
+    <string name="event_vinayaka_chaturthi">विनायक चतुर्थी</string>
+    <string name="event_masik_shivratri">मासिक शिवरात्रि</string>
+    <string name="event_mahashivratri">महाशिवरात्रि</string>
+
+    <string name="state_preparing_tomorrow">कल के लिए तैयारी</string>
+    <string name="state_observing_today">आज का व्रत</string>
+    <string name="state_parana_window">पारण समय</string>
+
+    <string name="channel_event_reminders_name">व्रत सूचना</string>
+    <string name="channel_event_reminders_desc">सब्सक्राइब किए गए व्रत से पहले शाम को तैयारी सूचना।</string>
+    <string name="channel_ritual_alarms_name">पूजा अलार्म</string>
+    <string name="channel_ritual_alarms_desc">सूर्योदय और पारण अलार्म पूजा ध्वनि के साथ।</string>
+    <string name="channel_daily_briefing_name">दैनिक सारांश</string>
+    <string name="channel_daily_briefing_desc">सुबह 7 बजे आज के पंचांग का संक्षिप्त सारांश।</string>
+
+    <string name="licensing_summary">नवपञ्चाङ्ग Astrodienst AG के Swiss Ephemeris पुस्तकालय (Thomas Mack Java port) का उपयोग करता है और AGPL v3 के अंतर्गत लाइसेंस प्राप्त है। स्रोत कोड GitHub पर उपलब्ध है।</string>
+
+    <!-- Settings home-city section. -->
+    <string name="settings_home_city_title">मुख्य नगर</string>
+    <string name="settings_home_city_not_set">निर्धारित नहीं — चुनने के लिए टैप करें</string>
+    <string name="settings_home_city_search_hint">नगर खोजें</string>
+    <string name="settings_home_city_use_gps">वर्तमान स्थान उपयोग करें</string>
+    <string name="settings_home_city_no_match">कोई नगर मेल नहीं खाया।</string>
+
+    <!-- Settings reliability check. -->
+    <string name="settings_reliability_title">विश्वसनीयता जाँच</string>
+    <string name="settings_reliability_battery">बैटरी ऑप्टिमाइज़ेशन निष्क्रिय</string>
+    <string name="settings_reliability_exact_alarms">सटीक-अलार्म अनुमति</string>
+    <string name="settings_reliability_fix">ठीक करें</string>
+    <string name="settings_reliability_all_green">सब तैयार — अलार्म विश्वसनीय रूप से काम करेंगे।</string>
+    <string name="settings_reliability_warning">कुछ विश्वसनीयता जाँचें विफल हैं। अलार्म विलंबित या मौन हो सकते हैं।</string>
+
+    <!-- Settings sunrise offset slider. -->
+    <string name="settings_sunrise_offset_title">सूर्योदय समय सुधार</string>
+    <string name="settings_sunrise_offset_value">%1$d मिनट</string>
+    <string name="settings_sunrise_offset_hint">केवल तब उपयोग करें यदि NavPanchang का सूर्योदय आपके मुद्रित पंचांग से लगातार अलग हो। सीमा: −2 से +2 मिनट।</string>
+
+    <!-- Settings about. -->
+    <string name="settings_about_title">परिचय</string>
+    <string name="about_tagline">हिन्दू व्रत रखने वालों के लिए सदस्यता-प्रथम पंचांग और अलार्म ऐप।</string>
+    <string name="about_licensing_header">लाइसेंस एवं स्रोत</string>
+    <string name="about_swisseph_credit">Swiss Ephemeris copyright © Astrodienst AG. Java port द्वारा Thomas Mack। AGPL v3 के अंतर्गत लाइसेंस प्राप्त।</string>
+    <string name="about_source_code_hint">नवपञ्चाङ्ग का पूरा स्रोत कोड GitHub पर उपलब्ध है — लिंक इस स्क्रीन और Play Store सूची में दिया गया है।</string>
+
+    <!-- Calendar tab strings (Phase 6). -->
+    <string name="calendar_month_header">%1$s %2$d</string>
+    <string name="calendar_day_detail_sunrise">सूर्योदय: %1$s</string>
+    <string name="calendar_day_detail_sunset">सूर्यास्त: %1$s</string>
+    <string name="calendar_day_detail_tithi">तिथि: %1$s</string>
+    <string name="calendar_day_detail_nakshatra">नक्षत्र: %1$s</string>
+    <string name="calendar_day_detail_adhik_info">यह अधिक मास है — नियमित व्रत अभी भी होंगे, लेकिन वार्षिक उत्सव अगले (निज) मास में मनाए जाएँगे।</string>
+    <string name="calendar_day_detail_kshaya_info">आज क्षय तिथि है — दो सूर्योदय के बीच प्रारंभ होकर समाप्त हो गई। नवपञ्चाङ्ग इसे सबसे लंबे समय वाले दिन पर मानता है।</string>
+    <string name="calendar_day_detail_close">बंद करें</string>
+
+    <!-- Notification copy. %1$s = event name, %2$s = formatted sunrise time. -->
+    <string name="notification_planner_title">कल %1$s है</string>
+    <string name="notification_planner_body">%1$s की तैयारी करें। सूर्योदय %2$s पर होगा — आज रात अपना भोजन और अन्य व्यवस्था कर लें।</string>
+
+    <string name="notification_observer_title">आज %1$s है</string>
+    <string name="notification_observer_body">%1$s आरंभ हो गया है। सूर्योदय %2$s पर है।</string>
+
+    <string name="notification_parana_title">%1$s पारण समय</string>
+    <string name="notification_parana_body">आज %1$s से %2$s के बीच पारण कर सकते हैं।</string>
+
+    <string name="notification_action_remind_at_sunrise">सूर्योदय पर याद दिलाएँ</string>
+    <string name="notification_action_dismiss">खारिज करें</string>
+
+    <!-- Home screen. -->
+    <string name="today_status_label">आज</string>
+    <string name="today_status_nakshatra">नक्षत्र: %1$s (%2$s)</string>
+    <string name="home_subscriptions_header">आपकी सदस्यताएँ</string>
+    <string name="home_add_more">और व्रत जोड़ें</string>
+    <string name="home_no_subscriptions">अभी कोई सदस्यता नहीं है। नीचे से कोई व्रत चुनकर अलार्म प्राप्त करें।</string>
+    <string name="home_city_missing_title">अपना मुख्य नगर चुनें</string>
+    <string name="home_city_missing_body">सूर्योदय की सही गणना के लिए नवपञ्चाङ्ग को आपका मुख्य नगर चाहिए। सेटिंग्स में जाकर चुनें।</string>
+
+    <string name="subscription_row_computing">अगली तिथि की गणना हो रही है…</string>
+    <string name="subscription_row_next_today">अगली: %1$s (आज)</string>
+    <string name="subscription_row_next_tomorrow">अगली: %1$s (कल)</string>
+    <string name="subscription_row_next_in_days">अगली: %1$s (%2$d दिनों में)</string>
+    <string name="subscription_row_next_generic">अगली: %1$s</string>
+
+    <!-- PreparationCard copy. -->
+    <string name="state_preparing_sunrise_in">सूर्योदय %1$d घंटे में — आज रात तैयारी कर लें।</string>
+    <string name="state_observing_sunrise">सूर्योदय %1$s पर</string>
+    <string name="state_parana_between">पारण समय: %1$s से %2$s के बीच।</string>
+
+    <!-- Event detail screen. -->
+    <string name="event_detail_title">व्रत</string>
+    <string name="event_detail_subscription_enabled">सदस्यता</string>
+    <string name="event_detail_alarms_header">अलार्म</string>
+    <string name="event_detail_planner_toggle">तैयारी (एक दिन पहले शाम)</string>
+    <string name="event_detail_observer_toggle">पालन (सूर्योदय पर)</string>
+    <string name="event_detail_parana_toggle">पारण समय</string>
+    <string name="event_detail_upcoming_header">आगामी</string>
+    <string name="event_detail_no_upcoming">आगामी तिथियाँ अभी उपलब्ध नहीं हैं — गणना चल रही है।</string>
+    <string name="event_detail_sunrise_at">सूर्योदय %1$s पर</string>
+    <string name="event_detail_parana_window">पारण: %1$s – %2$s</string>
+    <string name="event_detail_shifted_viddha">स्थानांतरित — दशमी-विद्धा</string>
+    <string name="event_detail_kshaya_context">क्षय तिथि — सुरक्षित दिन पर पालन</string>
+
+    <!-- Onboarding. -->
+    <string name="onboarding_welcome_title">नवपञ्चाङ्ग में आपका स्वागत है</string>
+    <string name="onboarding_welcome_body">एक बार सदस्यता लीजिए — हर एकादशी, पूर्णिमा, या अन्य व्रत पर सूर्योदय पर अलार्म मिलेगा। पंचांग देखने की ज़रूरत नहीं।</string>
+    <string name="onboarding_permissions_title">कुछ अनुमतियाँ चाहिए</string>
+    <string name="onboarding_permissions_body">सूर्योदय की सही गणना के लिए स्थान, अलार्म के लिए सूचनाएँ, और सटीक समय पर अलार्म हेतु अनुमति।</string>
+    <string name="onboarding_continue">आगे बढ़ें</string>
+    <string name="onboarding_done">नवपञ्चाङ्ग शुरू करें</string>
+</resources>

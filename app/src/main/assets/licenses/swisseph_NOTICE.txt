@@ -1,0 +1,27 @@
+NavPanchang bundles a Java port of the Swiss Ephemeris library by Astrodienst AG.
+
+  Library:       Swiss Ephemeris (Java port by Thomas Mack)
+  Version:       2.00.00-01
+  Source:        http://www.astro.com/swisseph/
+  Port source:   http://www.th-mack.de/international/download/
+  License:       AGPL v3 (GNU Affero General Public License)
+
+The full AGPL v3 license text is bundled as `agpl-v3.txt` in this directory.
+
+=======================================================================
+Swiss Ephemeris LEGAL notice (from the upstream distribution)
+=======================================================================
+
+The Swiss Ephemeris is made available by its authors under a dual licensing system:
+
+1. The GNU Affero General Public License (AGPL), version 3 (free for open-source
+   software).
+2. A Swiss Ephemeris Professional License (commercial, for closed-source software).
+
+NavPanchang is distributed under AGPL v3 and therefore uses the Swiss Ephemeris
+under option (1). The full source code of NavPanchang is available at the URL
+shown in the About screen, as required by AGPL §13 ("Remote Network Interaction")
+and §5 ("Conveying Modified Source Versions").
+
+The Swiss Ephemeris is copyright © 1997–2021 Astrodienst AG, Switzerland. All
+rights reserved. The Java port is copyright © Thomas Mack.

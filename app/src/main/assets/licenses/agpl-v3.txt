@@ -1,0 +1,29 @@
+                    GNU AFFERO GENERAL PUBLIC LICENSE
+                       Version 3, 19 November 2007
+
+ Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+The full text of the GNU Affero General Public License v3 is available at
+https://www.gnu.org/licenses/agpl-3.0.txt
+
+NavPanchang is licensed under AGPL v3 because it dynamically links against the
+Swiss Ephemeris library (via the Thomas Mack Java port at
+app/libs/swisseph-2.00.00-01.jar). The AGPL requires that any user who interacts
+with NavPanchang over a network be able to obtain the complete corresponding
+source code.
+
+Source code for NavPanchang is available at:
+    https://github.com/<placeholder>/navpanchang
+
+To rebuild NavPanchang from source:
+ 1. Clone the repository.
+ 2. Ensure Android Studio Koala+ / JDK 17 / Android Gradle Plugin 8.5+.
+ 3. Place your own signing keystore at `keystore/upload-key.jks` (or use the debug
+    keystore for development builds).
+ 4. Run `./gradlew :app:assembleRelease` from the project root.
+
+The Swiss Ephemeris JAR under `app/libs/` is AGPL v3 itself (dual-licensed with a
+commercial option from Astrodienst AG). We use the AGPL option; see
+`swisseph_NOTICE.txt` in this directory for attribution.

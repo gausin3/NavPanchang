@@ -1,0 +1,48 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!gradle-wrapper.properties
+local.properties
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+captures/
+.externalNativeBuild
+.cxx/
+
+# Generated
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+
+# Keystores — NEVER commit
+*.jks
+*.keystore
+keystore/
+!app/keystore.properties.example
+
+# Profiling / local output
+*.hprof
+bin/
+gen/
+out/
+release/
+
+# Secrets
+google-services.json
+app/google-services.json
+secrets.properties
+
+# macOS
+.DS_Store
+
+# Test reports
+app/build/reports/
+app/build/test-results/
+
+# Per-user Claude Code settings (tool permission cache — never commit)
+.claude/settings.local.json

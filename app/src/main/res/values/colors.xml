@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#F5E6C8</color>
+
+    <!-- Brand palette: warm saffron + deep indigo night-sky. -->
+    <color name="brand_saffron">#F28C38</color>
+    <color name="brand_deep_indigo">#1B1464</color>
+    <color name="brand_gold">#D4AF37</color>
+    <color name="brand_cream">#FFF8E7</color>
+</resources>

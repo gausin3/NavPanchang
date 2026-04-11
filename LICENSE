@@ -1,0 +1,38 @@
+NavPanchang — Android panchang and alarm app for Hindu vrat observers
+Copyright (C) 2026 NavPanchang Contributors
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+details.
+
+You should have received a copy of the GNU Affero General Public License along
+with this program. If not, see <https://www.gnu.org/licenses/agpl-3.0.html>.
+
+---------------------------------------------------------------------------
+
+NavPanchang uses the Swiss Ephemeris library by Astrodienst AG (via the Java
+port by Thomas Mack). Swiss Ephemeris is dual-licensed under AGPL v3 or a
+commercial license. NavPanchang uses the AGPL option. See
+app/src/main/assets/licenses/swisseph_NOTICE.txt for the upstream attribution
+and the LEGAL text.
+
+The full AGPL v3 license text is available at:
+    https://www.gnu.org/licenses/agpl-3.0.txt
+
+and is bundled inside the app at:
+    app/src/main/assets/licenses/agpl-v3.txt
+
+---------------------------------------------------------------------------
+
+AGPL §13 — "Remote Network Interaction" — requires that any modified version
+that interacts with users over a network must make the complete source code
+available to those users. NavPanchang is an offline-first app with no server
+component, but because the user runs it on their own device they are
+nonetheless entitled to the source. The About screen inside the app links to
+the public GitHub repository where the source code is maintained.
