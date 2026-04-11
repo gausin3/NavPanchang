@@ -40,9 +40,7 @@ class VratLogicTest {
     @Before
     fun setUp() {
         val engine = MeeusEphemerisEngine()
-        calculator = PanchangCalculator(engine, SunriseCalculator(engine)).apply {
-            ayanamshaType = AyanamshaType.LAHIRI
-        }
+        calculator = PanchangCalculator(engine, SunriseCalculator(engine))
         tithiEndFinder = TithiEndFinder(engine)
         vratLogic = VratLogic(calculator, tithiEndFinder)
     }
@@ -58,7 +56,7 @@ class VratLogicTest {
         assertNotNull("Expected to find a Shukla Ekadashi in Jan 2024", ekadashiDate)
 
         // Verify tithi at sunrise is 11.
-        val sunriseSnapshot = calculator.computeAtSunrise(ekadashiDate!!, lat, lon, zone)!!
+        val sunriseSnapshot = calculator.computeAtSunrise(ekadashiDate!!, lat, lon, zone, AYANAMSHA)!!
         assertTrue(
             "Setup sanity: tithi at sunrise must be 11, got ${sunriseSnapshot.tithi.index}",
             sunriseSnapshot.tithi.index == 11
@@ -69,7 +67,8 @@ class VratLogicTest {
             candidateDate = ekadashiDate,
             latitudeDeg = lat,
             longitudeDeg = lon,
-            zone = zone
+            zone = zone,
+            ayanamshaType = AYANAMSHA
         )
 
         // Whatever the result, the observation date should be the same or +1 day.
@@ -82,7 +81,7 @@ class VratLogicTest {
         // If NOT shifted, tithi at arunodaya on ekadashiDate is NOT 10.
         if (!result.shifted) {
             val arunodayaUtc = calculator.arunodayaUtc(ekadashiDate, lat, lon, zone)!!
-            val tithiAtArunodaya = calculator.computeAtInstant(arunodayaUtc).tithi.index
+            val tithiAtArunodaya = calculator.computeAtInstant(arunodayaUtc, AYANAMSHA).tithi.index
             assertTrue(
                 "If not shifted, tithi at arunodaya must not be 10 (Dashami), got $tithiAtArunodaya",
                 tithiAtArunodaya != 10
@@ -98,7 +97,8 @@ class VratLogicTest {
                 candidateDate = LocalDate.of(2024, 1, 15),
                 latitudeDeg = lat,
                 longitudeDeg = lon,
-                zone = zone
+                zone = zone,
+                ayanamshaType = AYANAMSHA
             )
             throw AssertionError("Expected IllegalArgumentException for tithi 5")
         } catch (e: IllegalArgumentException) {
@@ -118,7 +118,8 @@ class VratLogicTest {
             ekadashiTithiIndex = 11,
             latitudeDeg = lat,
             longitudeDeg = lon,
-            zone = zone
+            zone = zone,
+            ayanamshaType = AYANAMSHA
         )
         assertNotNull("Expected a Parana window for a real Ekadashi", parana)
 
@@ -139,7 +140,8 @@ class VratLogicTest {
             ekadashiTithiIndex = 11,
             latitudeDeg = lat,
             longitudeDeg = lon,
-            zone = zone
+            zone = zone,
+            ayanamshaType = AYANAMSHA
         )
         assertNotNull(parana)
         assertTrue(
@@ -156,7 +158,8 @@ class VratLogicTest {
             ekadashiTithiIndex = 11,
             latitudeDeg = lat,
             longitudeDeg = lon,
-            zone = zone
+            zone = zone,
+            ayanamshaType = AYANAMSHA
         )!!
         val durationHours = (parana.endUtc - parana.startUtc) / 3_600_000.0
         assertTrue(
@@ -175,7 +178,8 @@ class VratLogicTest {
             ekadashiTithiIndex = 11,
             latitudeDeg = lat,
             longitudeDeg = lon,
-            zone = zone
+            zone = zone,
+            ayanamshaType = AYANAMSHA
         )!!
         val durationHours = (parana.endUtc - parana.startUtc) / 3_600_000.0
         assertTrue(
@@ -196,10 +200,14 @@ class VratLogicTest {
     private fun findShuklaEkadashi(year: Int, month: Int): LocalDate? {
         var date = LocalDate.of(year, month, 1)
         repeat(30) {
-            val snapshot = calculator.computeAtSunrise(date, lat, lon, zone)
+            val snapshot = calculator.computeAtSunrise(date, lat, lon, zone, AYANAMSHA)
             if (snapshot != null && snapshot.tithi.index == 11) return date
             date = date.plusDays(1)
         }
         return null
+    }
+
+    private companion object {
+        private val AYANAMSHA = AyanamshaType.LAHIRI
     }
 }

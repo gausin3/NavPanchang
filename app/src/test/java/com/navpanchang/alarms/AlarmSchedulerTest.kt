@@ -317,9 +317,12 @@ class AlarmSchedulerTest {
     // ------------------------------------------------------------------
 
     private fun occurrenceFarInFuture(): Occurrence {
-        // Ekadashi in 6 months from now — far enough that the Planner is unambiguously
-        // in the future regardless of wall-clock at test run.
-        val date = LocalDate.now(zoneLucknow).plusMonths(6)
+        // Ekadashi 60 days after BASE_NOW — far enough that the Planner (T-1d 20:00)
+        // is unambiguously in the future, close enough that it sits inside
+        // AlarmScheduler.ALARM_HORIZON_DAYS (90d). Anchoring to BASE_NOW rather than
+        // LocalDate.now() keeps the test deterministic as real wall-clock drifts.
+        val baseDate = java.time.Instant.ofEpochMilli(BASE_NOW).atZone(zoneLucknow).toLocalDate()
+        val date = baseDate.plusDays(60)
         val sunrise = ZonedDateTime
             .of(date, java.time.LocalTime.of(5, 30), zoneLucknow)
             .toInstant().toEpochMilli()

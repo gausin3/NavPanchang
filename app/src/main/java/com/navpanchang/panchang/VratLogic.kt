@@ -1,5 +1,6 @@
 package com.navpanchang.panchang
 
+import com.navpanchang.ephemeris.AyanamshaType
 import java.time.LocalDate
 import java.time.ZoneId
 import javax.inject.Inject
@@ -56,7 +57,8 @@ class VratLogic @Inject constructor(
         candidateDate: LocalDate,
         latitudeDeg: Double,
         longitudeDeg: Double,
-        zone: ZoneId
+        zone: ZoneId,
+        ayanamshaType: AyanamshaType
     ): ViddhaResult {
         require(ekadashiTithiIndex == 11 || ekadashiTithiIndex == 26) {
             "Dashami-Viddha only applies to Ekadashi (tithi 11 or 26), got $ekadashiTithiIndex"
@@ -71,7 +73,7 @@ class VratLogic @Inject constructor(
             reason = "No sunrise at this latitude/date — cannot apply Dashami-Viddha"
         )
 
-        val tithiAtArunodaya = panchangCalculator.computeAtInstant(arunodayaUtc).tithi.index
+        val tithiAtArunodaya = panchangCalculator.computeAtInstant(arunodayaUtc, ayanamshaType).tithi.index
 
         return if (tithiAtArunodaya == dashamiIndex) {
             ViddhaResult(
@@ -107,7 +109,8 @@ class VratLogic @Inject constructor(
         ekadashiTithiIndex: Int,
         latitudeDeg: Double,
         longitudeDeg: Double,
-        zone: ZoneId
+        zone: ZoneId,
+        ayanamshaType: AyanamshaType
     ): ParanaWindow? {
         require(ekadashiTithiIndex == 11 || ekadashiTithiIndex == 26) {
             "Parana window only applies to Ekadashi"
@@ -132,22 +135,22 @@ class VratLogic @Inject constructor(
 
         val searchStart = sunriseUtc - SEARCH_BACKWARD_MILLIS
         val searchEnd = sunriseUtc + SEARCH_FORWARD_MILLIS
-        val boundaries = tithiEndFinder.findAllTithiEndsInWindow(searchStart, searchEnd)
+        val boundaries = tithiEndFinder.findAllTithiEndsInWindow(searchStart, searchEnd, ayanamshaType)
 
         val dvadashiTithi = if (ekadashiTithiIndex == 11) 12 else 27
         val trayodashiTithi = if (ekadashiTithiIndex == 11) 13 else 28
 
         // Dvadashi start = the Ekadashi→Dvadashi transition in the window.
         val dvadashiStart = boundaries.firstOrNull { boundary ->
-            val before = panchangCalculator.computeAtInstant(boundary - 1000).tithi.index
-            val after = panchangCalculator.computeAtInstant(boundary + 1000).tithi.index
+            val before = panchangCalculator.computeAtInstant(boundary - 1000, ayanamshaType).tithi.index
+            val after = panchangCalculator.computeAtInstant(boundary + 1000, ayanamshaType).tithi.index
             before == ekadashiTithiIndex && after == dvadashiTithi
         } ?: return null
 
         // Dvadashi end = the Dvadashi→Trayodashi transition after that.
         val dvadashiEnd = boundaries.firstOrNull { boundary ->
             if (boundary <= dvadashiStart) return@firstOrNull false
-            val after = panchangCalculator.computeAtInstant(boundary + 1000).tithi.index
+            val after = panchangCalculator.computeAtInstant(boundary + 1000, ayanamshaType).tithi.index
             after == trayodashiTithi
         } ?: return null
 

@@ -1,5 +1,6 @@
 package com.navpanchang.panchang
 
+import com.navpanchang.ephemeris.AyanamshaType
 import com.navpanchang.ephemeris.MeeusEphemerisEngine
 import com.navpanchang.ephemeris.SunriseCalculator
 import org.junit.Assert.assertEquals
@@ -42,7 +43,7 @@ class AdhikMaasTest {
         // Classify from mid-April 2023 to mid-April 2024 — a full Hindu lunar year.
         val start = utcMillis(2023, 4, 1, 0, 0)
         val end = utcMillis(2024, 5, 1, 0, 0)
-        val months = detector.classifyLunarMonthsInWindow(start, end)
+        val months = detector.classifyLunarMonthsInWindow(start, end, AyanamshaType.LAHIRI)
 
         assertTrue(
             "Expected 12–14 lunar months in the window, got ${months.size}",
@@ -63,7 +64,7 @@ class AdhikMaasTest {
     fun `2023 Adhik month is Shravana`() {
         val start = utcMillis(2023, 6, 1, 0, 0)
         val end = utcMillis(2023, 10, 1, 0, 0)
-        val months = detector.classifyLunarMonthsInWindow(start, end)
+        val months = detector.classifyLunarMonthsInWindow(start, end, AyanamshaType.LAHIRI)
 
         val adhik = months.firstOrNull { it.type == LunarMonthType.Adhik }
         assertTrue("Expected an Adhik month in mid-2023", adhik != null)
@@ -78,7 +79,7 @@ class AdhikMaasTest {
         // 2024 is a normal year — all 12 months should be Nija.
         val start = utcMillis(2024, 4, 1, 0, 0)
         val end = utcMillis(2025, 4, 1, 0, 0)
-        val months = detector.classifyLunarMonthsInWindow(start, end)
+        val months = detector.classifyLunarMonthsInWindow(start, end, AyanamshaType.LAHIRI)
 
         val adhikCount = months.count { it.type == LunarMonthType.Adhik }
         assertEquals(
@@ -109,7 +110,7 @@ class AdhikMaasTest {
     fun `classified lunar months are contiguous with no gaps`() {
         val start = utcMillis(2024, 1, 1, 0, 0)
         val end = utcMillis(2024, 12, 31, 0, 0)
-        val months = detector.classifyLunarMonthsInWindow(start, end)
+        val months = detector.classifyLunarMonthsInWindow(start, end, AyanamshaType.LAHIRI)
 
         for (i in 1 until months.size) {
             val prev = months[i - 1]

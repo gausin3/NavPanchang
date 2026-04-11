@@ -99,12 +99,47 @@ for upstream attribution.
 
 ---
 
+## Audio assets
+
+The four ritual notification channels ship with **procedural placeholder tones** at:
+
+```
+app/src/main/res/raw/ritual_temple_bell.wav
+app/src/main/res/raw/ritual_sankh.wav
+app/src/main/res/raw/ritual_bell_toll.wav
+app/src/main/res/raw/ritual_om_mantra.wav
+```
+
+Each is ~86 KB (2 s, 22 kHz, 16-bit mono). They are **audibly distinct** — a decaying
+bell, a vibrato horn, a three-strike bell toll, a low drone — so the four ritual
+channels can be distinguished during testing, but they are clearly synthetic and not
+suitable for a polished release.
+
+**To regenerate the placeholders:**
+
+```bash
+python3 scripts/generate_placeholder_ritual_sounds.py
+```
+
+**To replace them with real recordings:** drop your own `ritual_*.wav` (or `.ogg` /
+`.mp3` / `.flac`) over the placeholder with the same filename. No Kotlin changes are
+required — `NotificationChannels.ensureChannels()` looks them up by `R.raw.*` id at
+build time. Recommended sources:
+
+- [Freesound.org](https://freesound.org/) — filter by License: "Creative Commons 0"
+  for zero attribution hassle; CC-BY requires adding credit to the About screen.
+- Your own recording — a phone voice-memo of an actual temple bell or conch will
+  comfortably outperform the placeholder for authenticity.
+
+Target specs: ≤ 4 seconds, ≤ 150 KB, mono or stereo, any Android-decodable format.
+
+---
+
 ## Key references
 
-- **The approved plan:** `~/.claude/plans/generic-juggling-sphinx.md`
 - **Memory & conventions:** [`MEMORY.md`](MEMORY.md)
 - **Religious correctness notes:** [`TECH_DESIGN.md`](TECH_DESIGN.md) §Panchang calculation + §Vrat logic
-- **Phase-by-phase status:** [`TECH_DESIGN.md`](TECH_DESIGN.md) §§11–16
+- **Phase-by-phase status:** [`TECH_DESIGN.md`](TECH_DESIGN.md) §§11–22
 
 ---
 

@@ -46,7 +46,8 @@ class OccurrenceComputer @Inject constructor(
         val longitudeDeg: Double,
         val zone: ZoneId,
         val locationTag: String,
-        val isHighPrecision: Boolean
+        val isHighPrecision: Boolean,
+        val ayanamshaType: AyanamshaType
     )
 
     /** Main entry point. */
@@ -64,7 +65,7 @@ class OccurrenceComputer @Inject constructor(
             .toInstant()
             .toEpochMilli()
         val lunarMonths = adhikMaasDetector.classifyLunarMonthsInWindow(
-            paddedStartUtc, paddedEndUtc, AyanamshaType.LAHIRI
+            paddedStartUtc, paddedEndUtc, request.ayanamshaType
         )
 
         // Snapshot of which days already produced a shifted-Ekadashi occurrence — lets us
@@ -76,7 +77,7 @@ class OccurrenceComputer @Inject constructor(
         var day = request.startDate
         while (!day.isAfter(request.endDate)) {
             val panchangAtSunrise = panchangCalculator.computeAtSunrise(
-                day, request.latitudeDeg, request.longitudeDeg, request.zone
+                day, request.latitudeDeg, request.longitudeDeg, request.zone, request.ayanamshaType
             )
             if (panchangAtSunrise == null) {
                 day = day.plusDays(1); continue
@@ -151,12 +152,14 @@ class OccurrenceComputer @Inject constructor(
         // A Kshaya-free day has at most one tithi boundary between today's sunrise and
         // tomorrow's sunrise. Two boundaries means some tithi is entirely contained in
         // that window — that's the Kshaya tithi.
-        val boundaries = tithiEndFinder.findAllTithiEndsInWindow(sunriseUtc, nextSunriseUtc)
+        val boundaries = tithiEndFinder.findAllTithiEndsInWindow(
+            sunriseUtc, nextSunriseUtc, request.ayanamshaType
+        )
         if (boundaries.size < 2) return emptyList()
 
         // Identify the Kshaya tithi: it's the one present between the two boundaries.
         val midpoint = (boundaries[0] + boundaries[1]) / 2
-        val kshayaTithiIndex = panchangCalculator.computeAtInstant(midpoint).tithi.index
+        val kshayaTithiIndex = panchangCalculator.computeAtInstant(midpoint, request.ayanamshaType).tithi.index
 
         val out = mutableListOf<Occurrence>()
         for (event in request.events) {
@@ -280,7 +283,8 @@ class OccurrenceComputer @Inject constructor(
             candidateDate = day,
             latitudeDeg = request.latitudeDeg,
             longitudeDeg = request.longitudeDeg,
-            zone = request.zone
+            zone = request.zone,
+            ayanamshaType = request.ayanamshaType
         )
 
         // If no viddha shift, still guard against the double-sunrise case where an
@@ -304,7 +308,8 @@ class OccurrenceComputer @Inject constructor(
                 ekadashiTithiIndex = rule.tithiIndex,
                 latitudeDeg = request.latitudeDeg,
                 longitudeDeg = request.longitudeDeg,
-                zone = request.zone
+                zone = request.zone,
+                ayanamshaType = request.ayanamshaType
             )
         } else null
 
@@ -333,7 +338,7 @@ class OccurrenceComputer @Inject constructor(
         request: Request
     ): Boolean {
         val next = panchangCalculator.computeAtSunrise(
-            day.plusDays(1), request.latitudeDeg, request.longitudeDeg, request.zone
+            day.plusDays(1), request.latitudeDeg, request.longitudeDeg, request.zone, request.ayanamshaType
         ) ?: return false
         return next.tithi.index == tithiIndex
     }

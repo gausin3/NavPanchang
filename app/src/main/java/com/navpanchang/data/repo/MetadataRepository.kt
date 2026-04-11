@@ -2,6 +2,7 @@ package com.navpanchang.data.repo
 
 import com.navpanchang.data.db.MetadataDao
 import com.navpanchang.data.db.entities.CalcMetadataEntity
+import com.navpanchang.ephemeris.AyanamshaType
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
@@ -76,5 +77,26 @@ class MetadataRepository @Inject constructor(
     suspend fun setSunriseOffsetMinutes(minutes: Int) {
         val current = getOrDefault()
         dao.upsert(current.copy(sunriseOffsetMinutes = minutes))
+    }
+
+    /**
+     * The user's configured [AyanamshaType], parsed from the stored string field. Returns
+     * [AyanamshaType.LAHIRI] if the stored value is missing, blank, or not a known enum
+     * member (forward-compatible in case we ever add new types and downgrade).
+     *
+     * This is the canonical resolution point for hot loops — resolve once at the top of
+     * a worker or screen-load coroutine and thread the result down through
+     * [com.navpanchang.panchang.PanchangCalculator] and its callers.
+     */
+    suspend fun ayanamshaType(): AyanamshaType {
+        val stored = getOrDefault().ayanamshaType
+        return runCatching { AyanamshaType.valueOf(stored) }
+            .getOrDefault(AyanamshaType.LAHIRI)
+    }
+
+    /** Update the user's preferred ayanamsha. Wired up by the Phase 6 Settings screen. */
+    suspend fun setAyanamsha(type: AyanamshaType) {
+        val current = getOrDefault()
+        dao.upsert(current.copy(ayanamshaType = type.name))
     }
 }

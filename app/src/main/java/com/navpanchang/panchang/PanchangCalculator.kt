@@ -20,14 +20,15 @@ import javax.inject.Singleton
  *  * "What is the panchang at sunrise on this date at this location?" → [computeAtSunrise]
  *  * "What time is sunrise on this date at this location?" → [sunriseUtc]
  *
- * All outputs use the user's configured ayanamsha (default [AyanamshaType.LAHIRI]) —
- * passed in at construction so the calculator can remain stateless across calls.
+ * Every tithi/nakshatra-producing call takes the caller's configured [AyanamshaType] as
+ * an explicit parameter. Sunrise/sunset helpers do not — they depend only on the Sun's
+ * tropical position, which is ayanamsha-independent.
  *
- * **Stateless, reusable** — this class holds no per-call state, so a single instance is
- * safe to share across threads. The Hilt graph provides it as a [Singleton]. For the
- * 24-month lookahead (where we want to match the hygiene pattern from the plan's
- * `EphemerisScope` guidance) wrap the calls externally in
- * [com.navpanchang.ephemeris.EphemerisScope].
+ * **Stateless, reusable, thread-safe** — this class holds no per-call state, so a single
+ * instance is safe to share across threads. The Hilt graph provides it as a [Singleton].
+ * The canonical place to resolve the user's ayanamsha preference is
+ * [com.navpanchang.data.repo.MetadataRepository.ayanamshaType]; hot loops should resolve
+ * it once at the top of the call and thread it down.
  *
  * See TECH_DESIGN.md §Panchang calculation.
  */
@@ -37,14 +38,11 @@ class PanchangCalculator @Inject constructor(
     private val sunriseCalculator: SunriseCalculator
 ) {
 
-    /** The ayanamsha used for tropical → sidereal conversion. Default: Lahiri. */
-    var ayanamshaType: AyanamshaType = AyanamshaType.LAHIRI
-
     /**
      * Compute a panchang snapshot at the given epoch-millis UTC. This is the finest-grained
      * API — everything else in this class is sugar on top of it.
      */
-    fun computeAtInstant(epochMillisUtc: Long): PanchangSnapshot {
+    fun computeAtInstant(epochMillisUtc: Long, ayanamshaType: AyanamshaType): PanchangSnapshot {
         val jd = AstroTimeUtils.epochMillisToJulianDay(epochMillisUtc)
         val ayanamshaDeg = Ayanamsha.compute(ayanamshaType, jd)
 
@@ -79,11 +77,12 @@ class PanchangCalculator @Inject constructor(
         date: LocalDate,
         latitudeDeg: Double,
         longitudeDeg: Double,
-        zone: ZoneId
+        zone: ZoneId,
+        ayanamshaType: AyanamshaType
     ): PanchangSnapshot? {
         val sunriseMillis = sunriseCalculator.sunriseUtc(date, latitudeDeg, longitudeDeg, zone)
             ?: return null
-        return computeAtInstant(sunriseMillis)
+        return computeAtInstant(sunriseMillis, ayanamshaType)
     }
 
     /**

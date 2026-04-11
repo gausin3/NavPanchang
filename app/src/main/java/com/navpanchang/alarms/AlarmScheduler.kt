@@ -137,7 +137,16 @@ class AlarmScheduler @Inject constructor(
         if (!AlarmManagerCompat.canScheduleExactAlarms(am)) return
 
         val pending = alarmRepository.getPending(nowUtc)
+        val horizonLimit = nowUtc + ALARM_HORIZON_MILLIS
+        var rearmed = 0
+        var skipped = 0
         for (row in pending) {
+            // Mirror the scheduleOne() horizon check — don't re-arm alarms we wouldn't have
+            // armed in the first place. Rows stay in the DB and will be picked up next tick.
+            if (row.fireAtUtc > horizonLimit) {
+                skipped++
+                continue
+            }
             val intent = buildBroadcastIntent(row.occurrenceId, AlarmKind.fromName(row.kind))
             val pendingIntent = PendingIntent.getBroadcast(
                 context, row.requestCode, intent,
@@ -146,8 +155,9 @@ class AlarmScheduler @Inject constructor(
             am.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP, row.fireAtUtc, pendingIntent
             )
+            rearmed++
         }
-        Log.i(TAG, "Re-armed ${pending.size} pending alarms")
+        Log.i(TAG, "Re-armed $rearmed pending alarms ($skipped beyond ${ALARM_HORIZON_DAYS}d horizon)")
     }
 
     // ------------------------------------------------------------------
@@ -179,6 +189,16 @@ class AlarmScheduler @Inject constructor(
                     )
                 )
             }
+            return false
+        }
+
+        // Don't arm exact alarms further than ALARM_HORIZON_DAYS into the future. RefreshWorker
+        // already caps per-event occurrence count via ALARM_HORIZON_LIMIT, but this is belt-and-
+        // suspenders: guards against boot re-arms, future per-event cap changes, and OEMs that
+        // enforce stricter PendingIntent budgets than the Android default. The next RefreshWorker
+        // tick will retry once the occurrence falls inside the horizon.
+        if (fireAtUtc - nowUtc > ALARM_HORIZON_MILLIS) {
+            Log.i(TAG, "Skipping $kind for occurrence $occurrenceId: ${(fireAtUtc - nowUtc) / DAY_MILLIS}d beyond horizon")
             return false
         }
 
@@ -254,6 +274,17 @@ class AlarmScheduler @Inject constructor(
 
         /** Written to `pending_status` when a Planner alarm is skipped due to late subscription. */
         const val PENDING_READY_FOR_TOMORROW = "READY_FOR_TOMORROW"
+
+        /**
+         * Hard ceiling on how far into the future we arm an OS-level exact alarm. Occurrences
+         * past this point are skipped on the current scheduling pass; the next [RefreshWorker]
+         * tick will retry them once the horizon catches up. Complements
+         * `RefreshWorker.ALARM_HORIZON_LIMIT` (per-event occurrence count) and keeps per-app
+         * `PendingIntent` count well below the OEM soft cap.
+         */
+        const val ALARM_HORIZON_DAYS = 90
+        private const val DAY_MILLIS = 24L * 60L * 60L * 1000L
+        private const val ALARM_HORIZON_MILLIS = ALARM_HORIZON_DAYS * DAY_MILLIS
 
         /**
          * Stable request code derived from the persistent occurrence id and the alarm

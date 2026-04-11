@@ -64,10 +64,10 @@ class AdhikMaasDetector @Inject constructor(
     fun classifyLunarMonthsInWindow(
         startEpochMillisUtc: Long,
         endEpochMillisUtc: Long,
-        ayanamshaType: AyanamshaType = AyanamshaType.LAHIRI
+        ayanamshaType: AyanamshaType
     ): List<LunarMonthWindow> {
         val amavasyas = amavasyaFinder.findAmavasyasInWindow(
-            startEpochMillisUtc, endEpochMillisUtc
+            startEpochMillisUtc, endEpochMillisUtc, ayanamshaType
         )
         if (amavasyas.size < 2) return emptyList()
 

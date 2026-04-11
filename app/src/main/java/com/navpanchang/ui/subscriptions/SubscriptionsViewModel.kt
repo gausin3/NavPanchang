@@ -84,7 +84,8 @@ class SubscriptionsViewModel @Inject constructor(
 
         // Today's panchang — simple snapshot at the current instant.
         val nowUtc = System.currentTimeMillis()
-        val todaySnapshot = panchangCalculator.computeAtInstant(nowUtc)
+        val ayanamshaType = metadataRepository.ayanamshaType()
+        val todaySnapshot = panchangCalculator.computeAtInstant(nowUtc, ayanamshaType)
         val today = TodayStatus(
             tithi = todaySnapshot.tithi,
             nakshatra = todaySnapshot.nakshatra,

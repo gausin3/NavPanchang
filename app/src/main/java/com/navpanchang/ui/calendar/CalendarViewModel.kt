@@ -77,6 +77,7 @@ class CalendarViewModel @Inject constructor(
         withContext(Dispatchers.Default) {
             val location = resolveLocation() ?: return@withContext emptyList()
             val zone = location.zone
+            val ayanamshaType = metadataRepository.ayanamshaType()
 
             // One-shot read: take the first emission of the range flow. The Calendar
             // grid is a snapshot; live updates trigger a re-load via loadMonth() when
@@ -90,7 +91,7 @@ class CalendarViewModel @Inject constructor(
             var day = month.atDay(1)
             while (day.monthValue == month.monthValue) {
                 val snapshot = panchangCalculator.computeAtSunrise(
-                    day, location.lat, location.lon, zone
+                    day, location.lat, location.lon, zone, ayanamshaType
                 )
                 cells.add(
                     DayCell(
@@ -107,8 +108,9 @@ class CalendarViewModel @Inject constructor(
     private suspend fun buildDayDetail(day: LocalDate): DayDetail? =
         withContext(Dispatchers.Default) {
             val location = resolveLocation() ?: return@withContext null
+            val ayanamshaType = metadataRepository.ayanamshaType()
             val snapshot = panchangCalculator.computeAtSunrise(
-                day, location.lat, location.lon, location.zone
+                day, location.lat, location.lon, location.zone, ayanamshaType
             ) ?: return@withContext null
             val sunset = panchangCalculator.sunsetUtc(
                 day, location.lat, location.lon, location.zone

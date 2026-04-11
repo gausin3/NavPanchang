@@ -1,5 +1,6 @@
 package com.navpanchang.panchang
 
+import com.navpanchang.ephemeris.AyanamshaType
 import javax.inject.Inject
 
 /**
@@ -25,16 +26,17 @@ class AmavasyaFinder @Inject constructor(
      */
     fun findAmavasyasInWindow(
         startEpochMillisUtc: Long,
-        endEpochMillisUtc: Long
+        endEpochMillisUtc: Long,
+        ayanamshaType: AyanamshaType
     ): List<Long> {
         val allBoundaries = tithiEndFinder.findAllTithiEndsInWindow(
-            startEpochMillisUtc, endEpochMillisUtc
+            startEpochMillisUtc, endEpochMillisUtc, ayanamshaType
         )
         // Filter to those where the tithi just *before* was 30 (i.e. the wrap from
         // Amavasya back to Shukla Pratipada).
         return allBoundaries.filter { boundary ->
             val tithiBefore = panchangCalculator
-                .computeAtInstant(boundary - BEFORE_OFFSET_MILLIS).tithi.index
+                .computeAtInstant(boundary - BEFORE_OFFSET_MILLIS, ayanamshaType).tithi.index
             tithiBefore == 30
         }
     }

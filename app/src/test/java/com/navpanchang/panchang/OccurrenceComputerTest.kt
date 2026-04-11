@@ -1,5 +1,6 @@
 package com.navpanchang.panchang
 
+import com.navpanchang.ephemeris.AyanamshaType
 import com.navpanchang.ephemeris.MeeusEphemerisEngine
 import com.navpanchang.ephemeris.SunriseCalculator
 import org.junit.Assert.assertEquals
@@ -106,7 +107,8 @@ class OccurrenceComputerTest {
             longitudeDeg = lon,
             zone = zone,
             locationTag = "HOME",
-            isHighPrecision = false
+            isHighPrecision = false,
+            ayanamshaType = AyanamshaType.LAHIRI
         )
         val occurrences = computer.computeWindow(request)
 
@@ -129,7 +131,8 @@ class OccurrenceComputerTest {
             longitudeDeg = lon,
             zone = zone,
             locationTag = "HOME",
-            isHighPrecision = false
+            isHighPrecision = false,
+            ayanamshaType = AyanamshaType.LAHIRI
         )
         val occurrences = computer.computeWindow(request)
 
@@ -149,7 +152,8 @@ class OccurrenceComputerTest {
             longitudeDeg = lon,
             zone = zone,
             locationTag = "HOME",
-            isHighPrecision = false
+            isHighPrecision = false,
+            ayanamshaType = AyanamshaType.LAHIRI
         )
         val occurrences = computer.computeWindow(request)
 
@@ -174,7 +178,8 @@ class OccurrenceComputerTest {
             longitudeDeg = lon,
             zone = zone,
             locationTag = "HOME",
-            isHighPrecision = false
+            isHighPrecision = false,
+            ayanamshaType = AyanamshaType.LAHIRI
         )
         val occurrences = computer.computeWindow(request)
 
@@ -208,7 +213,8 @@ class OccurrenceComputerTest {
             longitudeDeg = lon,
             zone = zone,
             locationTag = "HOME",
-            isHighPrecision = false
+            isHighPrecision = false,
+            ayanamshaType = AyanamshaType.LAHIRI
         )
         val occurrences = computer.computeWindow(request)
 
@@ -238,7 +244,8 @@ class OccurrenceComputerTest {
             longitudeDeg = lon,
             zone = zone,
             locationTag = "CURRENT",
-            isHighPrecision = true
+            isHighPrecision = true,
+            ayanamshaType = AyanamshaType.LAHIRI
         )
         val occurrences = computer.computeWindow(request)
 

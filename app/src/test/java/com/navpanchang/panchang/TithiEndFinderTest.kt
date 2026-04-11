@@ -25,9 +25,7 @@ class TithiEndFinderTest {
     @Before
     fun setUp() {
         val engine = MeeusEphemerisEngine()
-        calculator = PanchangCalculator(engine, SunriseCalculator(engine)).apply {
-            ayanamshaType = AyanamshaType.LAHIRI
-        }
+        calculator = PanchangCalculator(engine, SunriseCalculator(engine))
         finder = TithiEndFinder(engine)
     }
 
@@ -47,8 +45,8 @@ class TithiEndFinderTest {
         var crossed = -1L
         for (i in 0..10) {
             val end = finder.findNextTithiEnd(cursor) ?: break
-            val tithiAfter = calculator.computeAtInstant(end + 1000).tithi.index
-            if (calculator.computeAtInstant(end - 1000).tithi.index == 30 && tithiAfter == 1) {
+            val tithiAfter = calculator.computeAtInstant(end + 1000, AyanamshaType.LAHIRI).tithi.index
+            if (calculator.computeAtInstant(end - 1000, AyanamshaType.LAHIRI).tithi.index == 30 && tithiAfter == 1) {
                 crossed = end
                 break
             }
@@ -76,8 +74,8 @@ class TithiEndFinderTest {
         var crossed = -1L
         for (i in 0..10) {
             val end = finder.findNextTithiEnd(cursor) ?: break
-            val before = calculator.computeAtInstant(end - 1000).tithi.index
-            val after = calculator.computeAtInstant(end + 1000).tithi.index
+            val before = calculator.computeAtInstant(end - 1000, AyanamshaType.LAHIRI).tithi.index
+            val after = calculator.computeAtInstant(end + 1000, AyanamshaType.LAHIRI).tithi.index
             if (before == 15 && after == 16) {
                 crossed = end
                 break
@@ -130,8 +128,8 @@ class TithiEndFinderTest {
         val start = utcMillis(2024, 3, 1, 0, 0)
         val boundary = finder.findNextTithiEnd(start) ?: fail("No boundary found")
 
-        val before = calculator.computeAtInstant(boundary - 2000).tithi.index
-        val after = calculator.computeAtInstant(boundary + 2000).tithi.index
+        val before = calculator.computeAtInstant(boundary - 2000, AyanamshaType.LAHIRI).tithi.index
+        val after = calculator.computeAtInstant(boundary + 2000, AyanamshaType.LAHIRI).tithi.index
         assertTrue(
             "Tithi index must change within ±2s of reported boundary: before=$before after=$after",
             before != after

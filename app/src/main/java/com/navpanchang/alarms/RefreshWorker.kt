@@ -91,6 +91,7 @@ class RefreshWorker @AssistedInject constructor(
             val zone = ZoneId.of(homeTz)
             val today = LocalDate.now(zone)
             val end = today.plusMonths(HOME_LOOKAHEAD_MONTHS)
+            val ayanamshaType = metadataRepository.ayanamshaType()
 
             val request = OccurrenceComputer.Request(
                 events = subscribed,
@@ -100,7 +101,8 @@ class RefreshWorker @AssistedInject constructor(
                 longitudeDeg = homeLon,
                 zone = zone,
                 locationTag = LOCATION_TAG_HOME,
-                isHighPrecision = false
+                isHighPrecision = false,
+                ayanamshaType = ayanamshaType
             )
 
             val computedAtUtc = System.currentTimeMillis()
@@ -142,7 +144,7 @@ class RefreshWorker @AssistedInject constructor(
             Log.i(TAG, "HOME refresh complete: ${occurrences.size} occurrences, $alarmCount alarms")
 
             // Tier 2 — high-precision CURRENT window if we have live GPS.
-            runCurrentTierIfPossible(subscribed, computedAtUtc)
+            runCurrentTierIfPossible(subscribed, computedAtUtc, ayanamshaType)
 
             Result.success()
         } catch (t: Throwable) {
@@ -162,7 +164,8 @@ class RefreshWorker @AssistedInject constructor(
      */
     private suspend fun runCurrentTierIfPossible(
         subscribed: List<com.navpanchang.panchang.EventDefinition>,
-        computedAtUtc: Long
+        computedAtUtc: Long,
+        ayanamshaType: com.navpanchang.ephemeris.AyanamshaType
     ) {
         if (subscribed.isEmpty()) return
         val location = locationProvider.getCurrentLocation()
@@ -183,7 +186,8 @@ class RefreshWorker @AssistedInject constructor(
             longitudeDeg = location.longitude,
             zone = zone,
             locationTag = LOCATION_TAG_CURRENT,
-            isHighPrecision = true
+            isHighPrecision = true,
+            ayanamshaType = ayanamshaType
         )
         val tier2 = occurrenceComputer.computeWindow(request)
         occurrenceRepository.replaceWindow(
