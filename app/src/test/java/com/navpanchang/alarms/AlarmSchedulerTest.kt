@@ -7,6 +7,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.navpanchang.data.db.NavPanchangDb
 import com.navpanchang.data.db.entities.EventDefinitionEntity
+import com.navpanchang.data.db.entities.OccurrenceEntity
 import com.navpanchang.data.db.entities.SubscriptionEntity
 import com.navpanchang.data.repo.AlarmRepository
 import com.navpanchang.data.repo.MetadataRepository
@@ -91,8 +92,14 @@ class AlarmSchedulerTest {
 
         // ShadowAlarmManager defaults vary across Robolectric versions. Pin the exact-
         // alarm permission to granted so our scheduler's gate doesn't short-circuit.
+        // Method signature isn't stable across versions, so invoke reflectively.
         val am = context.getSystemService<AlarmManager>()!!
-        runCatching { shadowOf(am).setCanScheduleExactAlarms(true) }
+        val shadow = shadowOf(am)
+        runCatching {
+            shadow.javaClass
+                .getMethod("setCanScheduleExactAlarms", Boolean::class.javaPrimitiveType)
+                .invoke(shadow, true)
+        }
 
         runTest {
             db.eventDefinitionDao().upsertAll(
@@ -115,6 +122,26 @@ class AlarmSchedulerTest {
                 )
             )
             metadataRepository.upsertInitial("Lucknow", 26.8467, 80.9462, "Asia/Kolkata")
+
+            // Insert a placeholder OccurrenceEntity with id=100 to satisfy the
+            // scheduled_alarms → occurrences foreign key. The test's fixture values
+            // (sunriseUtc, paranaStartUtc, etc.) are ignored by the scheduler because
+            // callers pass an `Occurrence` domain object directly; only the FK target
+            // must exist.
+            db.occurrenceDao().upsertAll(
+                listOf(
+                    OccurrenceEntity(
+                        id = 100L,
+                        eventId = "shukla_ekadashi",
+                        dateLocal = "2099-12-31",
+                        sunriseUtc = 0L,
+                        observanceUtc = 0L,
+                        locationTag = "HOME",
+                        isHighPrecision = false,
+                        computedAt = 0L
+                    )
+                )
+            )
         }
     }
 

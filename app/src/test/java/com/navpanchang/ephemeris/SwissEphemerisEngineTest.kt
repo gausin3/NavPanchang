@@ -144,7 +144,7 @@ class SwissEphemerisEngineTest {
     }
 
     @Test
-    fun `sun right ascension is in 0..360 range`() {
+    fun `sun right ascension is in 0 to 360 range`() {
         val jd = jdAtUtc(2024, 6, 21, 0, 0)
         val ra = swiss.sunRightAscensionDeg(jd)
         assertTrue("RA should be in [0, 360), got $ra", ra in 0.0..<360.0)

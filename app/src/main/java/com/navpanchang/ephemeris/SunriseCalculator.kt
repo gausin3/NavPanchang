@@ -6,6 +6,7 @@ import com.navpanchang.ephemeris.AstroMath.sinDeg
 import com.navpanchang.util.AstroTimeUtils
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.ZoneOffset
 import kotlin.math.acos
 import kotlin.math.cos
 import kotlin.math.floor
@@ -67,11 +68,13 @@ class SunriseCalculator(private val engine: EphemerisEngine) {
         zone: ZoneId,
         isSet: Boolean
     ): Long? {
-        // The caller passes a local date. We convert to a UT Julian Day at 0h UT on that
-        // civil date; the iterative Meeus algorithm refines from there.
-        val localMidnight = date.atStartOfDay(zone)
-        val instantUtcMidnight = localMidnight.withZoneSameInstant(ZoneId.of("UTC"))
-        val jd0 = AstroTimeUtils.epochMillisToJulianDay(instantUtcMidnight.toEpochMilli())
+        // The caller passes a local date. The Meeus algorithm anchors at 0h UT on that
+        // civil date; we then refine iteratively. Note we deliberately use the Gregorian
+        // date's 0h UT — not the local-midnight instant converted to UT — so `jd0` is
+        // aligned with the sidereal-time formula at the bottom of the method.
+        val jd0 = AstroTimeUtils.epochMillisToJulianDay(
+            date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+        )
 
         // Meeus uses "longitude positive west" in Chapter 15. Our stored longitudes use
         // the modern convention (positive east), so flip sign for the algorithm then

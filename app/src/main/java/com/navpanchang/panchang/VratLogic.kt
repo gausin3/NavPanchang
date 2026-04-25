@@ -157,8 +157,22 @@ class VratLogic @Inject constructor(
         val dvadashiDuration = dvadashiEnd - dvadashiStart
         val harivasaraEnd = dvadashiStart + dvadashiDuration / 4
 
-        val paranaEnd = minOf(dvadashiEnd, harivasaraEnd)
-        return ParanaWindow(startUtc = sunriseUtc, endUtc = paranaEnd)
+        // Parana must happen:
+        // 1. After sunrise on Dvadashi day.
+        // 2. After Harivasara (1st quarter of Dvadashi tithi) has ended.
+        // 3. Before Dvadashi tithi ends.
+        val paranaStart = maxOf(sunriseUtc, harivasaraEnd)
+        val paranaEnd = dvadashiEnd
+
+        if (paranaEnd <= paranaStart) {
+            // This can happen if Dvadashi is very short (Kshaya).
+            // In such cases, standard practice is to break fast as soon as possible
+            // after sunrise, even if Trayodashi has started, but here we'll just
+            // return a minimal window or null if it's completely invalid.
+            return ParanaWindow(startUtc = paranaStart, endUtc = paranaStart + 3600_000)
+        }
+
+        return ParanaWindow(startUtc = paranaStart, endUtc = paranaEnd)
     }
 
     private companion object {

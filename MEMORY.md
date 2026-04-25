@@ -91,7 +91,9 @@ If a user enables a subscription 30 minutes before sunrise on the day of an even
 - **Location of truth for rules:** `assets/events.json` is authoritative. Any change to a rule bumps that event's `seedVersion` *and* the top-level `catalogVersion`. Never edit rows in `event_definitions` outside `EventCatalogSyncer`.
 - **User preferences sanctity:** Never write to `subscriptions` during a catalog upgrade. Never write to `subscriptions` from any worker. Only the UI writes to it.
 - **Ephemeris scope:** Every panchang computation goes through `EphemerisScope().use { ... }`. Never create a bare `SwissEph` instance.
+- **Ayanamsha resolution:** the user's persisted ayanamsha lives in `calc_metadata.ayanamshaType`. Resolve it **once per coroutine** via `metadataRepository.ayanamshaType()` (returns `LAHIRI` if missing/unknown) and thread the value down through `PanchangCalculator`, `OccurrenceComputer.Request`, etc. Never re-fetch per call inside a hot loop. `PanchangCalculator` does NOT carry ayanamsha state — every method takes it as an explicit parameter.
 - **Feature gating:** Code inside `util.debug.*` is `if (BuildConfig.DEBUG) return` at every public entry point. The debug menu is accessed by tapping the About screen version number 7 times.
+- **Audio assets are placeholders:** the four `app/src/main/res/raw/ritual_*.wav` files are procedurally synthesized by `scripts/generate_placeholder_ritual_sounds.py`, NOT field recordings. They're audibly distinct (so channel testing works) but clearly synthetic. Replace with CC0 recordings from Freesound or own recordings before any public Play Store release. Filename must stay the same — `NotificationChannels` resolves them by `R.raw.*` id at build time.
 
 ---
 
@@ -112,11 +114,14 @@ If a user enables a subscription 30 minutes before sunrise on the day of an even
 
 ## Release checklist (before flipping Internal → Production)
 
-- [ ] All unit tests pass including `AdhikMaasTest`, `VratLogicTest`, `TithiEndFinderTest`, `EventCatalogSyncerTest`.
+- [ ] All unit tests pass including `AdhikMaasTest`, `VratLogicTest`, `TithiEndFinderTest`, `EventCatalogSyncerTest`, `SwissEphemerisEngineTest`.
 - [ ] Manual mom-test passes on a real device in Hindi locale.
+- [ ] **Replace placeholder ritual audio** at `app/src/main/res/raw/ritual_*.wav` with real CC0 recordings (or attributable CC-BY with About-screen credit).
 - [ ] 12 Closed Testing track testers installed for 14 consecutive days (Play Store 2026 rule for new developer accounts).
-- [ ] AGPL compliance: LICENSE file, About attribution, Play Store description source link, bundled Swiss Eph LICENSE + LEGAL in assets.
+- [ ] AGPL compliance: top-level `LICENSE` file, About attribution, Play Store description source link, bundled `swisseph_NOTICE.txt` + `agpl-v3.txt` in `assets/licenses/`.
 - [ ] Reliability Check green on a Xiaomi and a Samsung test device.
 - [ ] `USE_EXACT_ALARM` declared and approved in Play Console.
 - [ ] Privacy policy live (no data leaves device).
 - [ ] ProGuard rules verified — alarm flow still works on a `release` build.
+- [ ] CI tag-trigger gap fixed (`build` job's `if` extended to also accept `refs/tags/v*`).
+- [ ] All five GitHub Actions secrets set: `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`, `PLAY_STORE_CONFIG_JSON`.

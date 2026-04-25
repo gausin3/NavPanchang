@@ -139,7 +139,7 @@ Target specs: ≤ 4 seconds, ≤ 150 KB, mono or stereo, any Android-decodable f
 
 - **Memory & conventions:** [`MEMORY.md`](MEMORY.md)
 - **Religious correctness notes:** [`TECH_DESIGN.md`](TECH_DESIGN.md) §Panchang calculation + §Vrat logic
-- **Phase-by-phase status:** [`TECH_DESIGN.md`](TECH_DESIGN.md) §§11–22
+- **Phase-by-phase status:** [`TECH_DESIGN.md`](TECH_DESIGN.md) §§11–23 (§23 "Post-initial-commit refinements" covers audio bundling, the ayanamsha threading refactor, and the Toggle→instant-refresh ViewModel wiring)
 
 ---
 
