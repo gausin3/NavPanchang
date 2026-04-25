@@ -93,6 +93,27 @@ android {
     }
 }
 
+// Pin Gradle's compile toolchain to JDK 17 across both Java and Kotlin.
+//
+// AGP 8.5+ and Robolectric 4.13 don't support Java 25 bytecode (class file major
+// version 69). Letting Gradle pick up whatever JDK happens to be on the system
+// (including Java 25 from JetBrains-bundled IDEs) breaks the build with
+// "Unsupported class file major version 69" errors at runtime.
+//
+// `jvmToolchain(17)` does two things:
+//  1. Tells Kotlin and Java compile tasks they need a JDK 17 toolchain.
+//  2. With the foojay-resolver-convention plugin (configured in
+//     `settings.gradle.kts`), Gradle will auto-download a Temurin 17 JDK on
+//     first run if no local install matches — so contributors don't have to
+//     install JDK 17 manually before `./gradlew assembleDebug` works.
+//
+// This replaces the previous `org.gradle.java.home=...` line in
+// `gradle.properties`, which hard-coded a Mac-specific Temurin path that broke
+// for any clone outside the original developer's machine.
+kotlin {
+    jvmToolchain(17)
+}
+
 dependencies {
     // Swiss Ephemeris — Thomas Mack Java port (v2.00.00-01), vendored under app/libs/.
     // AGPL v3 license flows to the whole app; see LICENSE + About screen attribution.
