@@ -21,10 +21,9 @@ import com.navpanchang.panchang.bilingual
 import com.navpanchang.panchang.bilingualQualified
 import com.navpanchang.panchang.companionName
 import com.navpanchang.panchang.displayLunarMonth
+import com.navpanchang.util.rememberFormatter
 import java.time.Instant
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 /**
  * Bottom sheet shown when the user taps a day in [CalendarScreen]. Displays the full
@@ -42,6 +41,8 @@ fun DayDetailSheet(
     onEventClick: (eventId: String) -> Unit = {}
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val dateFormatter = rememberFormatter("EEEE, d MMMM yyyy")
+    val timeFormatter = rememberFormatter("h:mm a")
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState
@@ -53,7 +54,7 @@ fun DayDetailSheet(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = detail.date.format(DATE_FORMATTER),
+                text = detail.date.format(dateFormatter),
                 style = MaterialTheme.typography.headlineSmall
             )
 
@@ -94,13 +95,19 @@ fun DayDetailSheet(
 
             detail.sunriseUtc?.let { sunrise ->
                 Text(
-                    text = stringResource(R.string.calendar_day_detail_sunrise, formatTime(sunrise)),
+                    text = stringResource(
+                        R.string.calendar_day_detail_sunrise,
+                        formatEpochMillis(sunrise, timeFormatter)
+                    ),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
             detail.sunsetUtc?.let { sunset ->
                 Text(
-                    text = stringResource(R.string.calendar_day_detail_sunset, formatTime(sunset)),
+                    text = stringResource(
+                        R.string.calendar_day_detail_sunset,
+                        formatEpochMillis(sunset, timeFormatter)
+                    ),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -156,8 +163,8 @@ fun DayDetailSheet(
                             Text(
                                 text = stringResource(
                                     R.string.calendar_day_detail_parana,
-                                    formatTime(paranaStart),
-                                    formatTime(paranaEnd)
+                                    formatEpochMillis(paranaStart, timeFormatter),
+                                    formatEpochMillis(paranaEnd, timeFormatter)
                                 ),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -182,14 +189,9 @@ fun DayDetailSheet(
     }
 }
 
-@Composable
-private fun formatTime(epochMillis: Long): String =
-    Instant.ofEpochMilli(epochMillis)
-        .atZone(ZoneId.systemDefault())
-        .format(TIME_FORMATTER)
-
-private val TIME_FORMATTER: DateTimeFormatter =
-    DateTimeFormatter.ofPattern("h:mm a", Locale.getDefault())
-
-private val DATE_FORMATTER: DateTimeFormatter =
-    DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", Locale.getDefault())
+private fun formatEpochMillis(
+    epochMillis: Long,
+    formatter: java.time.format.DateTimeFormatter
+): String = Instant.ofEpochMilli(epochMillis)
+    .atZone(ZoneId.systemDefault())
+    .format(formatter)

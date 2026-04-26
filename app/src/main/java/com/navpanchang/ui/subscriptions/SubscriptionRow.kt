@@ -17,10 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.navpanchang.R
+import com.navpanchang.util.rememberFormatter
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.Locale
 
 /**
  * One row in the subscription toggle list. Shows the event name (English + Hindi)
@@ -95,7 +94,8 @@ fun SubscriptionRow(
 private fun formatNextLine(date: LocalDate): String {
     val today = LocalDate.now()
     val days = ChronoUnit.DAYS.between(today, date)
-    val absolute = date.format(DATE_FORMATTER)
+    val dateFormatter = rememberFormatter("EEE, d MMM")
+    val absolute = date.format(dateFormatter)
     return when {
         days == 0L -> stringResource(R.string.subscription_row_next_today, absolute)
         days == 1L -> stringResource(R.string.subscription_row_next_tomorrow, absolute)
@@ -105,6 +105,3 @@ private fun formatNextLine(date: LocalDate): String {
         else -> stringResource(R.string.subscription_row_next_generic, absolute)
     }
 }
-
-private val DATE_FORMATTER: DateTimeFormatter =
-    DateTimeFormatter.ofPattern("EEE, d MMM", Locale.getDefault())

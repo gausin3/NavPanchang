@@ -48,8 +48,6 @@ import com.navpanchang.R
 import com.navpanchang.panchang.Occurrence
 import java.time.Instant
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 /**
  * Detail screen for a single subscribed event. Shows the event's name, the next 12
@@ -244,6 +242,8 @@ private fun ToggleRow(
 
 @Composable
 private fun UpcomingOccurrenceRow(occ: Occurrence) {
+    val dateFormatter = com.navpanchang.util.rememberFormatter("EEE, d MMM yyyy")
+    val timeFormatter = com.navpanchang.util.rememberFormatter("h:mm a")
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
@@ -255,7 +255,7 @@ private fun UpcomingOccurrenceRow(occ: Occurrence) {
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
             Text(
-                text = occ.dateLocal.format(DATE_FORMATTER),
+                text = occ.dateLocal.format(dateFormatter),
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
@@ -263,15 +263,15 @@ private fun UpcomingOccurrenceRow(occ: Occurrence) {
                     R.string.event_detail_sunrise_at,
                     Instant.ofEpochMilli(occ.sunriseUtc)
                         .atZone(ZoneId.systemDefault())
-                        .format(TIME_FORMATTER)
+                        .format(timeFormatter)
                 ),
                 style = MaterialTheme.typography.bodyMedium
             )
             if (occ.paranaStartUtc != null && occ.paranaEndUtc != null) {
                 val start = Instant.ofEpochMilli(occ.paranaStartUtc)
-                    .atZone(ZoneId.systemDefault()).format(TIME_FORMATTER)
+                    .atZone(ZoneId.systemDefault()).format(timeFormatter)
                 val end = Instant.ofEpochMilli(occ.paranaEndUtc)
-                    .atZone(ZoneId.systemDefault()).format(TIME_FORMATTER)
+                    .atZone(ZoneId.systemDefault()).format(timeFormatter)
                 Text(
                     text = stringResource(R.string.event_detail_parana_window, start, end),
                     style = MaterialTheme.typography.bodySmall,
@@ -295,12 +295,6 @@ private fun UpcomingOccurrenceRow(occ: Occurrence) {
         }
     }
 }
-
-private val DATE_FORMATTER: DateTimeFormatter =
-    DateTimeFormatter.ofPattern("EEE, d MMM yyyy", Locale.getDefault())
-
-private val TIME_FORMATTER: DateTimeFormatter =
-    DateTimeFormatter.ofPattern("h:mm a", Locale.getDefault())
 
 /**
  * Per-event ritual sound picker. Five radio rows, one per channel; tapping a row

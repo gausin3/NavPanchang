@@ -8,10 +8,9 @@ import com.navpanchang.MainActivity
 import com.navpanchang.R
 import com.navpanchang.panchang.EventDefinition
 import com.navpanchang.panchang.Occurrence
+import com.navpanchang.util.makeFormatter
 import java.time.Instant
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 /**
  * Builds [NotificationCompat] instances for each [AlarmKind]. Copy is looked up via
@@ -25,7 +24,11 @@ import java.util.Locale
  */
 object NotificationBuilder {
 
-    private val TIME_FORMATTER = DateTimeFormatter.ofPattern("h:mm a", Locale.getDefault())
+    // Per-call rather than a top-level val: top-level vals init at class-load with
+    // the original device locale, even though `LanguageSwitchInterceptor` later
+    // reset `Locale.getDefault()`. Notifications fire in receiver context where
+    // the JVM Locale.getDefault() is correct, so a fresh formatter per build call
+    // honors the user's chosen locale (and Numerals preference). See util/DateFormatters.kt.
 
     fun build(
         context: Context,
@@ -134,5 +137,7 @@ object NotificationBuilder {
     }
 
     private fun formatTime(epochMillisUtc: Long, zone: ZoneId): String =
-        Instant.ofEpochMilli(epochMillisUtc).atZone(zone).format(TIME_FORMATTER)
+        Instant.ofEpochMilli(epochMillisUtc)
+            .atZone(zone)
+            .format(makeFormatter("h:mm a"))
 }

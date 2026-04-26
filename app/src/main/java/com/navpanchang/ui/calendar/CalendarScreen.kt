@@ -28,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -108,10 +109,17 @@ private fun MonthHeader(
         IconButton(onClick = onPrev) {
             Icon(Icons.Filled.ChevronLeft, contentDescription = null)
         }
+        // Use Locale.getDefault() (set by LanguageSwitchInterceptor with full BCP-47
+        // extensions intact) rather than LocalConfiguration.current.locales[0] which
+        // strips `-u-nu-*` during the Configuration round-trip. See util/DateFormatters.kt.
+        // LocalConfiguration is still observed so this composable recomposes on locale
+        // change after a Settings → Language toggle + recreate.
+        val configTrigger = androidx.compose.ui.platform.LocalConfiguration.current
+        val activeLocale = remember(configTrigger) { Locale.getDefault() }
         Text(
             text = com.navpanchang.util.safeStringResource(
                 R.string.calendar_month_header,
-                state.month.month.getDisplayName(TextStyle.FULL, Locale.getDefault()),
+                state.month.month.getDisplayName(TextStyle.FULL, activeLocale),
                 state.month.year
             ),
             style = MaterialTheme.typography.titleLarge,

@@ -18,10 +18,9 @@ import com.navpanchang.R
 import com.navpanchang.ui.theme.StateObservingGreen
 import com.navpanchang.ui.theme.StateParanaCyan
 import com.navpanchang.ui.theme.StatePreparingYellow
+import com.navpanchang.util.rememberFormatter
 import java.time.Instant
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 /**
  * The live preparation card that sits between [TodayStatusCard] and the subscription
@@ -89,8 +88,9 @@ private fun ParanaCardContent(
     onEventClick: (String) -> Unit
 ) {
     val zone = ZoneId.systemDefault()
-    val start = Instant.ofEpochMilli(state.startUtc).atZone(zone).format(TIME_FORMATTER)
-    val end = Instant.ofEpochMilli(state.endUtc).atZone(zone).format(TIME_FORMATTER)
+    val timeFormatter = rememberFormatter("h:mm a")
+    val start = Instant.ofEpochMilli(state.startUtc).atZone(zone).format(timeFormatter)
+    val end = Instant.ofEpochMilli(state.endUtc).atZone(zone).format(timeFormatter)
     StateCard(
         modifier = modifier,
         color = StateParanaCyan,
@@ -133,11 +133,9 @@ private fun StateCard(
 
 @Composable
 private fun formatSunriseLine(sunriseUtc: Long): String {
+    val timeFormatter = rememberFormatter("h:mm a")
     val text = Instant.ofEpochMilli(sunriseUtc)
         .atZone(ZoneId.systemDefault())
-        .format(TIME_FORMATTER)
+        .format(timeFormatter)
     return stringResource(R.string.state_observing_sunrise, text)
 }
-
-private val TIME_FORMATTER: DateTimeFormatter =
-    DateTimeFormatter.ofPattern("h:mm a", Locale.getDefault())
