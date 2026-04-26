@@ -68,7 +68,12 @@ private fun SubscriptionsContent(
         }
 
         if (state.preparationCard !is PreparationCardState.Hidden) {
-            item { PreparationCard(state.preparationCard) }
+            item {
+                PreparationCard(
+                    state = state.preparationCard,
+                    onEventClick = onEventClick
+                )
+            }
         }
 
         item {

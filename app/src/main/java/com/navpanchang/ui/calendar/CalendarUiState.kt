@@ -1,6 +1,7 @@
 package com.navpanchang.ui.calendar
 
 import com.navpanchang.panchang.AppLanguage
+import com.navpanchang.panchang.EventDefinition
 import com.navpanchang.panchang.LunarConvention
 import com.navpanchang.panchang.LunarMonth
 import com.navpanchang.panchang.Nakshatra
@@ -43,13 +44,25 @@ data class DayCell(
     val hasSubscribedEvent: Boolean get() = occurrences.isNotEmpty()
 }
 
+/**
+ * One row in the DayDetailSheet's "what's happening on this day" list. Pairs an
+ * [Occurrence] with its full [EventDefinition] so the sheet can render a real
+ * human-friendly event name (and bilingual companion) instead of the raw `eventId`
+ * string. Carries the Parana window times directly off the Occurrence — only set
+ * for Ekadashi-class events.
+ */
+data class DayOccurrence(
+    val event: EventDefinition,
+    val occurrence: Occurrence
+)
+
 data class DayDetail(
     val date: LocalDate,
     val tithi: Tithi,
     val nakshatra: Nakshatra,
     val sunriseUtc: Long?,
     val sunsetUtc: Long?,
-    val occurrences: List<Occurrence>,
+    val occurrences: List<DayOccurrence>,
     val isAdhik: Boolean,
     val isKshayaContext: Boolean,
     /**

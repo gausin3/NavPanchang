@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.navpanchang.data.repo.MetadataRepository
 import com.navpanchang.data.repo.OccurrenceRepository
+import com.navpanchang.data.repo.SubscriptionRepository
 import com.navpanchang.panchang.PanchangCalculator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.LocalDate
@@ -32,6 +33,7 @@ import kotlinx.coroutines.withContext
 class CalendarViewModel @Inject constructor(
     private val metadataRepository: MetadataRepository,
     private val occurrenceRepository: OccurrenceRepository,
+    private val subscriptionRepository: SubscriptionRepository,
     private val panchangCalculator: PanchangCalculator
 ) : ViewModel() {
 
@@ -122,19 +124,32 @@ class CalendarViewModel @Inject constructor(
             val sunset = panchangCalculator.sunsetUtc(
                 day, location.lat, location.lon, location.zone
             )
-            val occurrences = _uiState.value.days
+            val rawOccurrences = _uiState.value.days
                 .firstOrNull { it.date == day }
                 ?.occurrences.orEmpty()
+
+            // Pair each occurrence with its full EventDefinition so the sheet can
+            // render the human-friendly name, parana times, and an "open detail" tap
+            // target. Building a one-shot eventId → definition lookup once per
+            // sheet-open is cheap (~10 events total in seed).
+            val eventLookup = subscriptionRepository.getAllAvailableDefinitions()
+                .associateBy { it.id }
+            val dayOccurrences = rawOccurrences.mapNotNull { occ ->
+                eventLookup[occ.eventId]?.let { event ->
+                    DayOccurrence(event = event, occurrence = occ)
+                }
+            }
+
             DayDetail(
                 date = day,
                 tithi = snapshot.tithi,
                 nakshatra = snapshot.nakshatra,
                 sunriseUtc = snapshot.epochMillisUtc,
                 sunsetUtc = sunset,
-                occurrences = occurrences,
-                isAdhik = occurrences.any { it.isAdhik },
-                isKshayaContext = occurrences.any { it.isKshayaContext },
-                lunarMonth = occurrences.firstNotNullOfOrNull { it.lunarMonth },
+                occurrences = dayOccurrences,
+                isAdhik = rawOccurrences.any { it.isAdhik },
+                isKshayaContext = rawOccurrences.any { it.isKshayaContext },
+                lunarMonth = rawOccurrences.firstNotNullOfOrNull { it.lunarMonth },
                 lunarConvention = lunarConvention,
                 appLanguage = appLanguage
             )

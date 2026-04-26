@@ -94,6 +94,8 @@
     <string name="calendar_day_detail_tithi">तिथि: %1$s</string>
     <string name="calendar_day_detail_nakshatra">नक्षत्र: %1$s</string>
     <string name="calendar_day_detail_lunar_month">मास: %1$s</string>
+    <string name="calendar_day_detail_parana">पारणा: %1$s – %2$s</string>
+    <string name="calendar_day_detail_viddha_shift">स्थानांतरित — दशमी-विद्धा</string>
     <string name="calendar_day_detail_adhik_info">यह अधिक मास है — नियमित व्रत अभी भी होंगे, लेकिन वार्षिक उत्सव अगले (निज) मास में मनाए जाएँगे।</string>
     <string name="calendar_day_detail_kshaya_info">आज क्षय तिथि है — दो सूर्योदय के बीच प्रारंभ होकर समाप्त हो गई। नवपञ्चाङ्ग इसे सबसे लंबे समय वाले दिन पर मानता है।</string>
     <string name="calendar_day_detail_close">बंद करें</string>

@@ -55,7 +55,8 @@ import java.util.Locale
 @Composable
 fun CalendarScreen(
     viewModel: CalendarViewModel = hiltViewModel(),
-    onPickHomeCity: () -> Unit = {}
+    onPickHomeCity: () -> Unit = {},
+    onEventClick: (eventId: String) -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -83,7 +84,11 @@ fun CalendarScreen(
     if (state.selectedDay != null) {
         DayDetailSheet(
             detail = state.selectedDay!!,
-            onDismiss = viewModel::onDismissDayDetail
+            onDismiss = viewModel::onDismissDayDetail,
+            onEventClick = { eventId ->
+                viewModel.onDismissDayDetail()
+                onEventClick(eventId)
+            }
         )
     }
 }

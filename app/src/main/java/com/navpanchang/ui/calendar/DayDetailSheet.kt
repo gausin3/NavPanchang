@@ -1,5 +1,6 @@
 package com.navpanchang.ui.calendar
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -37,7 +38,8 @@ import java.util.Locale
 @Composable
 fun DayDetailSheet(
     detail: DayDetail,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onEventClick: (eventId: String) -> Unit = {}
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(
@@ -127,11 +129,51 @@ fun DayDetailSheet(
                     text = stringResource(R.string.home_subscriptions_header),
                     style = MaterialTheme.typography.titleSmall
                 )
-                detail.occurrences.forEach { occ ->
-                    Text(
-                        text = "• ${occ.eventId}",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                detail.occurrences.forEach { dayOcc ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onEventClick(dayOcc.event.id) }
+                            .padding(vertical = 4.dp)
+                    ) {
+                        // Bilingual event name — "Krishna Ekadashi (कृष्ण एकादशी)" — never
+                        // the raw eventId. Format honors the user's chosen companion
+                        // language and falls back to Hindi for Marathi/Tamil/Gujarati
+                        // until those translations ship.
+                        Text(
+                            text = "• " + bilingual(
+                                dayOcc.event.nameEn,
+                                dayOcc.event.nameHi
+                            ),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+
+                        // Parana window — only Ekadashi-class events carry one. Format:
+                        // "Parana: 5:42 AM – 9:18 AM".
+                        val paranaStart = dayOcc.occurrence.paranaStartUtc
+                        val paranaEnd = dayOcc.occurrence.paranaEndUtc
+                        if (paranaStart != null && paranaEnd != null) {
+                            Text(
+                                text = stringResource(
+                                    R.string.calendar_day_detail_parana,
+                                    formatTime(paranaStart),
+                                    formatTime(paranaEnd)
+                                ),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(start = 12.dp)
+                            )
+                        }
+
+                        if (dayOcc.occurrence.shiftedDueToViddha) {
+                            Text(
+                                text = stringResource(R.string.calendar_day_detail_viddha_shift),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(start = 12.dp)
+                            )
+                        }
+                    }
                 }
             }
 

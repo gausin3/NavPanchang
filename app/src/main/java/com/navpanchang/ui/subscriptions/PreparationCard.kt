@@ -1,5 +1,6 @@
 package com.navpanchang.ui.subscriptions
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,20 +34,22 @@ import java.util.Locale
 @Composable
 fun PreparationCard(
     state: PreparationCardState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onEventClick: (eventId: String) -> Unit = {}
 ) {
     when (state) {
         PreparationCardState.Hidden -> Unit
-        is PreparationCardState.Preparing -> PreparingCardContent(state, modifier)
-        is PreparationCardState.Observing -> ObservingCardContent(state, modifier)
-        is PreparationCardState.Parana -> ParanaCardContent(state, modifier)
+        is PreparationCardState.Preparing -> PreparingCardContent(state, modifier, onEventClick)
+        is PreparationCardState.Observing -> ObservingCardContent(state, modifier, onEventClick)
+        is PreparationCardState.Parana -> ParanaCardContent(state, modifier, onEventClick)
     }
 }
 
 @Composable
 private fun PreparingCardContent(
     state: PreparationCardState.Preparing,
-    modifier: Modifier
+    modifier: Modifier,
+    onEventClick: (String) -> Unit
 ) {
     StateCard(
         modifier = modifier,
@@ -57,14 +60,16 @@ private fun PreparingCardContent(
         tertiary = com.navpanchang.util.safeStringResource(
             R.string.state_preparing_sunrise_in,
             state.hoursUntilSunrise
-        )
+        ),
+        onClick = { onEventClick(state.event.id) }
     )
 }
 
 @Composable
 private fun ObservingCardContent(
     state: PreparationCardState.Observing,
-    modifier: Modifier
+    modifier: Modifier,
+    onEventClick: (String) -> Unit
 ) {
     StateCard(
         modifier = modifier,
@@ -72,14 +77,16 @@ private fun ObservingCardContent(
         label = stringResource(R.string.state_observing_today),
         primary = state.event.nameEn,
         secondary = state.event.nameHi,
-        tertiary = formatSunriseLine(state.occurrence.sunriseUtc)
+        tertiary = formatSunriseLine(state.occurrence.sunriseUtc),
+        onClick = { onEventClick(state.event.id) }
     )
 }
 
 @Composable
 private fun ParanaCardContent(
     state: PreparationCardState.Parana,
-    modifier: Modifier
+    modifier: Modifier,
+    onEventClick: (String) -> Unit
 ) {
     val zone = ZoneId.systemDefault()
     val start = Instant.ofEpochMilli(state.startUtc).atZone(zone).format(TIME_FORMATTER)
@@ -90,7 +97,8 @@ private fun ParanaCardContent(
         label = stringResource(R.string.state_parana_window),
         primary = state.event.nameEn,
         secondary = state.event.nameHi,
-        tertiary = stringResource(R.string.state_parana_between, start, end)
+        tertiary = stringResource(R.string.state_parana_between, start, end),
+        onClick = { onEventClick(state.event.id) }
     )
 }
 
@@ -101,10 +109,11 @@ private fun StateCard(
     label: String,
     primary: String,
     secondary: String,
-    tertiary: String
+    tertiary: String,
+    onClick: () -> Unit
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().clickable(onClick = onClick),
         colors = CardDefaults.cardColors(
             containerColor = color,
             contentColor = MaterialTheme.colorScheme.onPrimary

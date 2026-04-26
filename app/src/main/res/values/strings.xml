@@ -103,6 +103,8 @@
     <string name="calendar_day_detail_tithi">Tithi: %1$s</string>
     <string name="calendar_day_detail_nakshatra">Nakshatra: %1$s</string>
     <string name="calendar_day_detail_lunar_month">Lunar month: %1$s</string>
+    <string name="calendar_day_detail_parana">Parana: %1$s – %2$s</string>
+    <string name="calendar_day_detail_viddha_shift">Shifted — Dashami-Viddha</string>
     <string name="calendar_day_detail_adhik_info">This is an Adhik (intercalary) month — regular vrats still fire, but annual festivals are deferred to the next (Nija) month.</string>
     <string name="calendar_day_detail_kshaya_info">A Kshaya tithi today — began and ended between two sunrises. NavPanchang observes it on the day of longest prevalence.</string>
     <string name="calendar_day_detail_close">Close</string>
