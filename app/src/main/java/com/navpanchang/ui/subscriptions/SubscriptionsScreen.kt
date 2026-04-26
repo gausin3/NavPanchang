@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -34,13 +35,14 @@ import com.navpanchang.R
 @Composable
 fun SubscriptionsScreen(
     viewModel: SubscriptionsViewModel = hiltViewModel(),
-    onEventClick: (eventId: String) -> Unit = {}
+    onEventClick: (eventId: String) -> Unit = {},
+    onPickHomeCity: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     when {
         uiState.loading -> LoadingState()
-        !uiState.homeCitySet -> HomeCityMissingState()
+        !uiState.homeCitySet -> HomeCityMissingState(onPickCity = onPickHomeCity)
         else -> SubscriptionsContent(
             state = uiState,
             onToggle = { eventId, enabled -> viewModel.onToggleSubscription(eventId, enabled) },
@@ -131,7 +133,7 @@ private fun LoadingState() {
 }
 
 @Composable
-private fun HomeCityMissingState() {
+private fun HomeCityMissingState(onPickCity: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -147,5 +149,11 @@ private fun HomeCityMissingState() {
             text = stringResource(R.string.home_city_missing_body),
             style = MaterialTheme.typography.bodyLarge
         )
+        // Direct CTA to the city picker — saves the user from hunting through Settings.
+        // Same destination as Settings → Home city tile, just one tap from the empty
+        // state instead of three.
+        Button(onClick = onPickCity) {
+            Text(stringResource(R.string.home_city_missing_cta))
+        }
     }
 }

@@ -54,7 +54,8 @@ import java.util.Locale
  */
 @Composable
 fun CalendarScreen(
-    viewModel: CalendarViewModel = hiltViewModel()
+    viewModel: CalendarViewModel = hiltViewModel(),
+    onPickHomeCity: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -71,7 +72,7 @@ fun CalendarScreen(
             state.loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
-            !state.homeCitySet -> CalendarEmptyState()
+            !state.homeCitySet -> CalendarEmptyState(onPickCity = onPickHomeCity)
             else -> MonthGrid(
                 state = state,
                 onDayClick = viewModel::onDayClick
@@ -218,7 +219,7 @@ private fun DayCellView(cell: DayCell, onClick: () -> Unit) {
  * pointer to Settings.
  */
 @Composable
-private fun CalendarEmptyState() {
+private fun CalendarEmptyState(onPickCity: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -238,5 +239,9 @@ private fun CalendarEmptyState() {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
+        Spacer(Modifier.height(16.dp))
+        androidx.compose.material3.Button(onClick = onPickCity) {
+            Text(androidx.compose.ui.res.stringResource(R.string.home_city_missing_cta))
+        }
     }
 }

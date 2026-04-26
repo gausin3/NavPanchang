@@ -51,11 +51,16 @@ fun NavPanchangNavGraph(
             SubscriptionsScreen(
                 onEventClick = { eventId ->
                     navController.navigate(NavDestinations.eventDetailRoute(eventId))
-                }
+                },
+                onPickHomeCity = { navController.navigate(NavDestinations.HOME_CITY_PICKER) }
             )
         }
 
-        composable(NavDestinations.CALENDAR) { CalendarScreen() }
+        composable(NavDestinations.CALENDAR) {
+            CalendarScreen(
+                onPickHomeCity = { navController.navigate(NavDestinations.HOME_CITY_PICKER) }
+            )
+        }
 
         composable(NavDestinations.SETTINGS) {
             SettingsScreen(

@@ -88,7 +88,7 @@
     <!-- Calendar tab strings (Phase 6). -->
     <string name="calendar_month_header">%1$s %2$d</string>
     <string name="calendar_no_home_city_title">अपना गृह नगर सेट करें</string>
-    <string name="calendar_no_home_city_body">पंचांग आपके गृह नगर के सूर्योदय के अनुसार तिथि और नक्षत्र दिखाता है। इस दृश्य को भरने के लिए सेटिंग्स में कोई नगर चुनें।</string>
+    <string name="calendar_no_home_city_body">पंचांग आपके गृह नगर के सूर्योदय के अनुसार तिथि और नक्षत्र दिखाता है।</string>
     <string name="calendar_day_detail_sunrise">सूर्योदय: %1$s</string>
     <string name="calendar_day_detail_sunset">सूर्यास्त: %1$s</string>
     <string name="calendar_day_detail_tithi">तिथि: %1$s</string>
@@ -118,7 +118,8 @@
     <string name="home_add_more">और व्रत जोड़ें</string>
     <string name="home_no_subscriptions">अभी कोई सदस्यता नहीं है। नीचे से कोई व्रत चुनकर अलार्म प्राप्त करें।</string>
     <string name="home_city_missing_title">अपना मुख्य नगर चुनें</string>
-    <string name="home_city_missing_body">सूर्योदय की सही गणना के लिए नवपञ्चाङ्ग को आपका मुख्य नगर चाहिए। सेटिंग्स में जाकर चुनें।</string>
+    <string name="home_city_missing_body">सूर्योदय की सही गणना के लिए नवपञ्चाङ्ग को आपका मुख्य नगर चाहिए।</string>
+    <string name="home_city_missing_cta">नगर चुनें</string>
 
     <string name="subscription_row_computing">अगली तिथि की गणना हो रही है…</string>
     <string name="subscription_row_next_today">अगली: %1$s (आज)</string>
