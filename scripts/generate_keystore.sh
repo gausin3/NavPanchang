@@ -74,11 +74,10 @@ echo "  Output: $OUT"
 echo "  Alias:  $ALIAS"
 echo "  CN=$CN, O=$ORG, C=$COUNTRY"
 echo
-echo "You will be prompted for two passwords:"
-echo "  1) Keystore password — protects the .jks file."
-echo "  2) Key password — protects the key inside it."
-echo "Many users use the same value for both. Use a long random string."
-echo "Save both passwords in a password manager IMMEDIATELY."
+echo "You will be prompted for ONE password (PKCS12 uses the same value for"
+echo "both the store and the key inside it — that's by design)."
+echo "keytool will ask you to enter it twice for confirmation."
+echo "Use a long random string. Save it in a password manager IMMEDIATELY."
 echo
 read -rp "Continue? (y/N) " confirm
 if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
@@ -120,25 +119,30 @@ cat <<EOF
 NEXT STEPS  (do these now, before you forget)
 ================================================================
 
-1. Save BOTH passwords in your password manager (1Password / Bitwarden /
-   KeePass). The keystore is useless without them.
+1. Save the password in your password manager (1Password / Bitwarden /
+   KeePass). The keystore is useless without it.
 
 2. Copy the .jks file to at least three secure locations:
      - Local encrypted folder (e.g., FileVault / LUKS / VeraCrypt).
      - Cloud password manager attachment (1Password Documents, etc.).
      - External drive or printed base64 dump kept offline.
 
-3. Set GitHub Actions secrets. Run this and paste each value via the
-   GitHub UI (Settings → Secrets and variables → Actions):
+3. Set GitHub Actions secrets. PKCS12 uses one password for both the store
+   and key, so KEYSTORE_PASSWORD and KEY_PASSWORD get the same value:
 
      KEYSTORE_BASE64       = contents of $BASE64_OUT
-     KEYSTORE_PASSWORD     = the keystore password you just chose
+     KEYSTORE_PASSWORD     = the password you just chose
      KEY_ALIAS             = $ALIAS
-     KEY_PASSWORD          = the key password you just chose
+     KEY_PASSWORD          = same as KEYSTORE_PASSWORD (PKCS12 unifies them)
 
    See docs/RELEASE.md for the full secret list.
 
-4. Once a year, decode the printed/cloud backup and verify it matches the
+4. Verify the keystore is readable:
+     keytool -list -v -keystore "$OUT"
+   Enter the password when prompted. You should see the certificate details
+   including the SHA-256 fingerprint shown above.
+
+5. Once a year, decode the printed/cloud backup and verify it matches the
    fingerprint above. Catches data rot before you need the backup.
 
 ================================================================

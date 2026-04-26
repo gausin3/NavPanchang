@@ -29,9 +29,9 @@ The script wraps `keytool` with sensible defaults (4096-bit RSA, 100-year validi
 
 You'll be prompted for:
 - Distinguishing-name fields (CN / O / C). Defaults are fine.
-- Two passwords (keystore + key). Use a password manager to generate both.
+- One password — PKCS12 keystores use the same password for both the store and the key inside it (this is the modern format Play Store and Android prefer). `keytool` asks you to enter it twice for confirmation. Use a password manager to generate it.
 
-After it finishes, the script prints the SHA-256 fingerprint and writes a base64 backup file. **Save the passwords in your password manager immediately.**
+After it finishes, the script prints the SHA-256 fingerprint and writes a base64 backup file. **Save the password in your password manager immediately.**
 
 ### 2. Back up the keystore (three places, minimum)
 
@@ -50,9 +50,9 @@ Go to `Settings → Secrets and variables → Actions → New repository secret`
 | Secret | Value |
 |---|---|
 | `KEYSTORE_BASE64` | Contents of `~/keystores/navpanchang-release.jks.base64.txt` |
-| `KEYSTORE_PASSWORD` | The keystore password you just chose |
+| `KEYSTORE_PASSWORD` | The password you chose during keystore generation |
 | `KEY_ALIAS` | `navpanchang` (matches the alias used by the generator script) |
-| `KEY_PASSWORD` | The key password you just chose |
+| `KEY_PASSWORD` | **Same value as `KEYSTORE_PASSWORD`** — PKCS12 unifies the two passwords. The Gradle release signing config still expects two named secrets, so we set both to the same value. |
 | `PLAY_STORE_CONFIG_JSON` | Empty / `null` for now. Add real value when you have a Play Console service account (see "Going to Play Store" below). |
 
 Without these secrets, the CI build job that produces a signed release APK will fail.
