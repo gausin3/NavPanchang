@@ -96,6 +96,8 @@
 
     <!-- Calendar tab placeholders — extended for Phase 6. -->
     <string name="calendar_month_header">%1$s %2$d</string>
+    <string name="calendar_no_home_city_title">Set your home city</string>
+    <string name="calendar_no_home_city_body">The calendar shows tithi and nakshatra at the sunrise of your home city. Pick one in Settings to populate this view.</string>
     <string name="calendar_day_detail_sunrise">Sunrise: %1$s</string>
     <string name="calendar_day_detail_sunset">Sunset: %1$s</string>
     <string name="calendar_day_detail_tithi">Tithi: %1$s</string>

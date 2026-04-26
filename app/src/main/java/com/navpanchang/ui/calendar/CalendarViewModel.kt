@@ -45,8 +45,13 @@ class CalendarViewModel @Inject constructor(
     fun loadMonth(month: YearMonth) {
         _uiState.value = _uiState.value.copy(loading = true, month = month)
         viewModelScope.launch {
-            val cells = buildCells(month)
-            _uiState.value = _uiState.value.copy(loading = false, days = cells)
+            val homeCitySet = resolveLocation() != null
+            val cells = if (homeCitySet) buildCells(month) else emptyList()
+            _uiState.value = _uiState.value.copy(
+                loading = false,
+                days = cells,
+                homeCitySet = homeCitySet
+            )
         }
     }
 

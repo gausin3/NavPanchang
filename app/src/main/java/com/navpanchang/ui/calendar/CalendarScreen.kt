@@ -67,12 +67,12 @@ fun CalendarScreen(
 
         WeekdayHeader()
 
-        if (state.loading) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        when {
+            state.loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
-        } else {
-            MonthGrid(
+            !state.homeCitySet -> CalendarEmptyState()
+            else -> MonthGrid(
                 state = state,
                 onDayClick = viewModel::onDayClick
             )
@@ -208,5 +208,35 @@ private fun DayCellView(cell: DayCell, onClick: () -> Unit) {
                 )
             }
         }
+    }
+}
+
+/**
+ * Shown when [CalendarUiState.homeCitySet] is false — typically a fresh install
+ * or a reinstall before the user has picked a city. Mirrors the Home tab's
+ * "Set your home city" empty-state copy so both surfaces give the user the same
+ * pointer to Settings.
+ */
+@Composable
+private fun CalendarEmptyState() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 32.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = androidx.compose.ui.res.stringResource(R.string.calendar_no_home_city_title),
+            style = MaterialTheme.typography.headlineSmall,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
+        Spacer(Modifier.height(12.dp))
+        Text(
+            text = androidx.compose.ui.res.stringResource(R.string.calendar_no_home_city_body),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
     }
 }

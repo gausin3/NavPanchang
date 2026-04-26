@@ -20,7 +20,15 @@ data class CalendarUiState(
     val loading: Boolean = true,
     val month: YearMonth = YearMonth.now(),
     val days: List<DayCell> = emptyList(),
-    val selectedDay: DayDetail? = null
+    val selectedDay: DayDetail? = null,
+    /**
+     * Mirrors `HomeUiState.homeCitySet` — false when the user has no home city
+     * configured yet (fresh install, or after a reinstall). Calendar grid needs
+     * coordinates to compute sunrise/tithi per day, so it stays empty in this
+     * state and the screen shows a "set your home city" empty-state instead of
+     * a blank grid.
+     */
+    val homeCitySet: Boolean = false
 ) {
     companion object {
         val INITIAL = CalendarUiState(loading = true)
