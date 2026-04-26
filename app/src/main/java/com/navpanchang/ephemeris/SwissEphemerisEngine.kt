@@ -30,9 +30,20 @@ import swisseph.SwissEph
  * [com.navpanchang.ui.settings.AboutScreen] for attribution. NavPanchang as a whole
  * inherits AGPL v3 because of this dependency.
  *
- * **Thread-safety:** [SwissEph] instances hold mutable state. Each injected
- * `SwissEphemerisEngine` is a `@Singleton`; for parallel use, wrap calls in
- * [EphemerisScope().use { ... }][EphemerisScope].
+ * **Thread-safety:** [SwissEph] holds mutable state and so do the [scratch] /
+ * [errorBuffer] fields on this class. Concurrent calls from two coroutines (e.g.
+ * a foreground ViewModel + the daily `RefreshWorker`) WILL corrupt the shared
+ * `.se1` file pointer mid-read and surface as
+ *   `error in ephemeris file ... sepl_18.se1: 42 coefficients instead of 26`
+ * before crashing the receiving coroutine.
+ *
+ * To prevent that, every public entry point on this class takes [lock]. Throughput
+ * is fine — a 24-month Tier 1 walk is ~700 calls × ~5 ms each, all on a single
+ * Default-dispatcher thread anyway; serializing across additional callers adds
+ * negligible wall-clock.
+ *
+ * (`EphemerisScope.use { }` is only resource-cleanup hygiene — it does NOT
+ * serialize. Don't rely on it for thread-safety.)
  */
 class SwissEphemerisEngine(context: Context) : EphemerisEngine {
 
@@ -57,22 +68,28 @@ class SwissEphemerisEngine(context: Context) : EphemerisEngine {
     private val scratch = DoubleArray(6)
     private val errorBuffer = StringBuffer(INITIAL_ERROR_BUFFER_LENGTH)
 
+    /**
+     * Single mutex guarding `swe`, `scratch`, and `errorBuffer`. See class kdoc —
+     * concurrent access without this lock corrupts the .se1 file pointer mid-read.
+     */
+    private val lock = Any()
+
     override fun sunApparentLongitudeDeg(julianDayUt: Double): Double =
-        calcLongitude(julianDayUt, SweConst.SE_SUN)
+        synchronized(lock) { calcLongitude(julianDayUt, SweConst.SE_SUN) }
 
     override fun moonApparentLongitudeDeg(julianDayUt: Double): Double =
-        calcLongitude(julianDayUt, SweConst.SE_MOON)
+        synchronized(lock) { calcLongitude(julianDayUt, SweConst.SE_MOON) }
 
-    override fun moonLatitudeDeg(julianDayUt: Double): Double {
+    override fun moonLatitudeDeg(julianDayUt: Double): Double = synchronized(lock) {
         errorBuffer.setLength(0)
         val result = swe.swe_calc_ut(
             julianDayUt, SweConst.SE_MOON, flagBase, scratch, errorBuffer
         )
         require(result >= 0) { "swe_calc_ut failed for moon lat: $errorBuffer" }
-        return scratch[1]
+        scratch[1]
     }
 
-    override fun sunDeclinationDeg(julianDayUt: Double): Double {
+    override fun sunDeclinationDeg(julianDayUt: Double): Double = synchronized(lock) {
         errorBuffer.setLength(0)
         val flags = flagBase or SweConst.SEFLG_EQUATORIAL
         val result = swe.swe_calc_ut(
@@ -80,17 +97,17 @@ class SwissEphemerisEngine(context: Context) : EphemerisEngine {
         )
         require(result >= 0) { "swe_calc_ut failed for sun dec: $errorBuffer" }
         // xx[0] = RA, xx[1] = declination when SEFLG_EQUATORIAL is set.
-        return scratch[1]
+        scratch[1]
     }
 
-    override fun sunRightAscensionDeg(julianDayUt: Double): Double {
+    override fun sunRightAscensionDeg(julianDayUt: Double): Double = synchronized(lock) {
         errorBuffer.setLength(0)
         val flags = flagBase or SweConst.SEFLG_EQUATORIAL
         val result = swe.swe_calc_ut(
             julianDayUt, SweConst.SE_SUN, flags, scratch, errorBuffer
         )
         require(result >= 0) { "swe_calc_ut failed for sun ra: $errorBuffer" }
-        return normalizeDegrees(scratch[0])
+        normalizeDegrees(scratch[0])
     }
 
     /**
@@ -98,9 +115,12 @@ class SwissEphemerisEngine(context: Context) : EphemerisEngine {
      * Called by [EphemerisScope.close].
      */
     fun close() {
-        runCatching { swe.swe_close() }
+        synchronized(lock) {
+            runCatching { swe.swe_close() }
+        }
     }
 
+    /** Caller holds [lock]. */
     private fun calcLongitude(julianDayUt: Double, body: Int): Double {
         errorBuffer.setLength(0)
         val result = swe.swe_calc_ut(julianDayUt, body, flagBase, scratch, errorBuffer)

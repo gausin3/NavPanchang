@@ -139,6 +139,25 @@ Use `rememberFormatter(pattern)` from any `@Composable`, or `makeFormatter(patte
 
 ---
 
+## Ephemeris engine concurrency
+
+`SwissEphemerisEngine` is a Hilt `@Singleton` (one instance for the whole app) with mutable shared state — the `SwissEph` library handle, a `scratch: DoubleArray(6)`, and a `StringBuffer` error sink. The Thomas Mack Java port is **NOT thread-safe**. Concurrent `swe_calc_ut` calls from two coroutines (e.g. a foreground ViewModel + the daily `RefreshWorker`) corrupt the shared `.se1` file pointer mid-read and surface as:
+
+```
+IllegalArgumentException: swe_calc_ut failed for body=0:
+  error in ephemeris file ... sepl_18.se1: 42 coefficients instead of 26.
+```
+
+The receiving coroutine throws and the app crashes. Symptom is intermittent — depends on coroutine scheduling — and easily mistaken for an unrelated UI bug ("sound preview crashes the app", "tapping a calendar day crashes", etc.) when in reality any concurrent panchang compute can trigger it.
+
+**Fix:** every public entry point on `SwissEphemerisEngine` is wrapped in `synchronized(lock) { ... }`. Throughput is fine — even a 24-month Tier 1 walk runs single-threaded on `Dispatchers.Default`, and serializing additional callers adds negligible wall-clock.
+
+`EphemerisScope.use { }` is **resource-cleanup hygiene only**. It does NOT serialize. Don't conclude from its existence that thread-safety is handled — it isn't, the `synchronized` lock inside the engine is what handles it.
+
+If you ever swap the engine out (Phase 1b alternative ephemerides, Vakya panchang, etc.), preserve the same lock pattern. Removing the lock will work in 99% of testing and crash in production for the unlucky 1%.
+
+---
+
 ## Conventions
 
 - **Time storage:** Always epoch-millis UTC in Room. Convert to local times in the repository layer or UI via `AstroTimeUtils` / `ZoneId.systemDefault()`. Never store local time as a string except for `dateLocal` (which is explicitly tagged to the location).
