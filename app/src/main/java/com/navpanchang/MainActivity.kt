@@ -1,15 +1,20 @@
 package com.navpanchang
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.navpanchang.panchang.AppLanguage
 import com.navpanchang.ui.NavPanchangNavGraph
@@ -91,13 +96,50 @@ class MainActivity : ComponentActivity() {
         super.attachBaseContext(LanguageSwitchInterceptor.wrap(newBase, locale))
     }
 
+    /**
+     * One-shot launcher for the POST_NOTIFICATIONS runtime permission (Android 13+).
+     * Result is fire-and-forget — if the user denies, the Reliability Check card on
+     * the Settings tab will surface the issue with a one-tap "Fix" button that
+     * either re-requests (if not permanently denied) or deep-links to the app's
+     * notification settings.
+     */
+    private val notificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* result handled by ReliabilityCheckSection observation */ }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        maybeRequestNotificationPermission()
         setContent {
             NavPanchangTheme {
                 NavPanchangScaffold()
             }
+        }
+    }
+
+    /**
+     * Auto-request the runtime POST_NOTIFICATIONS permission on first launch (or
+     * any subsequent launch where it's still un-granted and not permanently denied).
+     *
+     * On Android 13+ the permission is required for any notification — including our
+     * vrat alarms — to actually appear. Without this prompt, every alarm posts
+     * silently and the user gets no signal that anything is wrong.
+     *
+     * If the user has previously denied permanently, Android suppresses the dialog
+     * (the launcher's callback fires immediately without showing UI). The Reliability
+     * Check section then shows a "Notifications: ✗" row with a Fix button that opens
+     * the app's system-notification-settings page.
+     *
+     * No-op on Android < 33: the permission is auto-granted at install on those
+     * versions.
+     */
+    private fun maybeRequestNotificationPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+        val granted = ContextCompat.checkSelfPermission(
+            this, Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+        if (!granted) {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
 }

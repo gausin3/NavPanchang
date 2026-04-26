@@ -18,7 +18,8 @@ data class SettingsUiState(
     val numeralSystem: NumeralSystem = NumeralSystem.LATIN,
     val reliability: BatteryOptimizationCheck.Status = BatteryOptimizationCheck.Status(
         ignoringBatteryOptimizations = false,
-        canScheduleExactAlarms = false
+        canScheduleExactAlarms = false,
+        notificationsEnabled = false
     )
 ) {
     companion object {

@@ -3,6 +3,7 @@ package com.navpanchang.alarms
 import android.app.AlarmManager
 import android.content.Context
 import android.os.PowerManager
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.getSystemService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -28,11 +29,21 @@ class BatteryOptimizationCheck @Inject constructor(
 
     data class Status(
         val ignoringBatteryOptimizations: Boolean,
-        val canScheduleExactAlarms: Boolean
+        val canScheduleExactAlarms: Boolean,
+        /**
+         * True iff the user can actually receive notifications from the app.
+         *
+         * On Android 13+ this requires the runtime POST_NOTIFICATIONS permission to be
+         * granted. On older Android the permission is auto-granted at install but the
+         * user can still toggle notifications off in system Settings — `areNotifications-
+         * Enabled()` reflects both cases consistently. If false here, every alarm is a
+         * silent failure regardless of the other reliability knobs.
+         */
+        val notificationsEnabled: Boolean
     ) {
         /** True iff every reliability knob is in the "alarms will fire reliably" state. */
         val allGreen: Boolean
-            get() = ignoringBatteryOptimizations && canScheduleExactAlarms
+            get() = ignoringBatteryOptimizations && canScheduleExactAlarms && notificationsEnabled
     }
 
     fun getStatus(): Status {
@@ -42,9 +53,12 @@ class BatteryOptimizationCheck @Inject constructor(
         val alarmManager = context.getSystemService<AlarmManager>()
         val canSchedule = alarmManager?.let { AlarmManagerCompat.canScheduleExactAlarms(it) } ?: false
 
+        val notifications = NotificationManagerCompat.from(context).areNotificationsEnabled()
+
         return Status(
             ignoringBatteryOptimizations = ignoring,
-            canScheduleExactAlarms = canSchedule
+            canScheduleExactAlarms = canSchedule,
+            notificationsEnabled = notifications
         )
     }
 }

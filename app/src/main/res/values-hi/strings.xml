@@ -43,6 +43,7 @@
 
     <!-- Settings reliability check. -->
     <string name="settings_reliability_title">विश्वसनीयता जाँच</string>
+    <string name="settings_reliability_notifications">सूचनाएँ सक्षम</string>
     <string name="settings_reliability_battery">बैटरी ऑप्टिमाइज़ेशन निष्क्रिय</string>
     <string name="settings_reliability_exact_alarms">सटीक-अलार्म अनुमति</string>
     <string name="settings_reliability_fix">ठीक करें</string>

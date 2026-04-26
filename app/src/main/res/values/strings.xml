@@ -49,6 +49,7 @@
 
     <!-- Settings reliability check. -->
     <string name="settings_reliability_title">Reliability check</string>
+    <string name="settings_reliability_notifications">Notifications enabled</string>
     <string name="settings_reliability_battery">Battery optimization disabled</string>
     <string name="settings_reliability_exact_alarms">Exact-alarm permission</string>
     <string name="settings_reliability_fix">Fix</string>
