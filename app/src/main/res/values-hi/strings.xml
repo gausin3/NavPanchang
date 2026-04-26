@@ -59,6 +59,13 @@
     <string name="settings_language_hint">NavPanchang अंग्रेज़ी के साथ एक क्षेत्रीय भाषा दिखाता है। दूसरी भाषा चुनें।</string>
     <string name="settings_language_pending">(अनुवाद चल रहा है — फिलहाल हिन्दी पर वापस आ जाएगा)</string>
 
+    <!-- Contact card. -->
+    <string name="settings_contact_title">संपर्क करें</string>
+    <string name="settings_contact_whatsapp">व्हाट्सऐप</string>
+    <string name="settings_contact_email">ईमेल</string>
+    <string name="settings_contact_hint">सुझाव, व्रत-नियम सुधार या इंस्टॉलेशन सहायता के लिए संपर्क करें।</string>
+    <string name="settings_contact_no_app">इस क्रिया के लिए कोई ऐप उपलब्ध नहीं है। व्हाट्सऐप / ईमेल ऐप इंस्टॉल करके पुनः प्रयास करें।</string>
+
     <!-- Numerals preference. -->
     <string name="settings_numerals_title">अंक प्रणाली</string>
     <string name="settings_numerals_latin">लैटिन (123)</string>

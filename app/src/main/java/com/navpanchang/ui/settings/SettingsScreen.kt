@@ -36,11 +36,20 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.platform.LocalContext
+import com.navpanchang.BuildConfig
 import com.navpanchang.R
 import com.navpanchang.panchang.AppLanguage
 import com.navpanchang.panchang.LunarConvention
 import com.navpanchang.panchang.NumeralSystem
 import com.navpanchang.util.safeStringResource
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Forum
+import androidx.compose.material3.Icon
 
 /**
  * The Settings tab. Lays out the following sections top to bottom:
@@ -121,6 +130,8 @@ fun SettingsScreen(
                 (context as? androidx.activity.ComponentActivity)?.recreate()
             }
         )
+
+        ContactCard()
 
         AboutCard(onClick = onAboutClick)
 
@@ -372,6 +383,113 @@ private fun NumeralsCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+    }
+}
+
+/**
+ * "Contact us" card — WhatsApp + Email rows. Phone and email are baked into
+ * BuildConfig (see app/build.gradle.kts) so the UI doesn't carry inline strings.
+ *
+ * Both rows fire a standard `ACTION_VIEW` intent. Android resolves WhatsApp
+ * automatically via the wa.me universal link (falls back to the browser if
+ * WhatsApp isn't installed); the mailto: scheme opens whatever email handler
+ * the user has set as default. ActivityNotFoundException is caught and surfaced
+ * as a Toast so the user knows what happened.
+ *
+ * No data is collected, transmitted, or logged — the user initiates the message
+ * in their own messaging app. Per MEMORY.md "no analytics" locked decision.
+ */
+@Composable
+private fun ContactCard() {
+    val context = LocalContext.current
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.settings_contact_title),
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            ContactRow(
+                icon = Icons.Filled.Forum,
+                label = stringResource(R.string.settings_contact_whatsapp),
+                detail = BuildConfig.CONTACT_PHONE_E164,
+                onClick = {
+                    // wa.me wants digits only, no +. Pre-fill a short greeting so
+                    // the user can edit before sending. Encode as URL component.
+                    val digits = BuildConfig.CONTACT_PHONE_E164.filter { it.isDigit() }
+                    val greeting = Uri.encode("Hi NavPanchang —")
+                    val uri = Uri.parse("https://wa.me/$digits?text=$greeting")
+                    safeStartActivity(context, Intent(Intent.ACTION_VIEW, uri))
+                }
+            )
+
+            ContactRow(
+                icon = Icons.Filled.Email,
+                label = stringResource(R.string.settings_contact_email),
+                detail = BuildConfig.CONTACT_EMAIL,
+                onClick = {
+                    val uri = Uri.parse(
+                        "mailto:${BuildConfig.CONTACT_EMAIL}" +
+                            "?subject=${Uri.encode("NavPanchang feedback")}"
+                    )
+                    safeStartActivity(context, Intent(Intent.ACTION_SENDTO, uri))
+                }
+            )
+
+            Text(
+                text = stringResource(R.string.settings_contact_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun ContactRow(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    detail: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Column {
+            Text(text = label, style = MaterialTheme.typography.bodyLarge)
+            Text(
+                text = detail,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+private fun safeStartActivity(context: android.content.Context, intent: Intent) {
+    try {
+        context.startActivity(intent)
+    } catch (_: ActivityNotFoundException) {
+        Toast.makeText(
+            context,
+            R.string.settings_contact_no_app,
+            Toast.LENGTH_LONG
+        ).show()
     }
 }
 

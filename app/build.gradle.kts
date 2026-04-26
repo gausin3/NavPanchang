@@ -20,6 +20,12 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
+
+        // Contact info baked into BuildConfig so the UI doesn't carry it inline.
+        // Update both values in one place when contact channels change. The
+        // phone is used for the wa.me deep link (digits only, no `+`).
+        buildConfigField("String", "CONTACT_PHONE_E164", "\"+919028155500\"")
+        buildConfigField("String", "CONTACT_EMAIL", "\"gaurav@navtakniq.com\"")
     }
 
     // Signing config consumed by the release build type. Values come from env vars in

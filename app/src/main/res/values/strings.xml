@@ -66,6 +66,15 @@
     <string name="settings_language_hint">NavPanchang shows English plus one regional language. Pick the second one.</string>
     <string name="settings_language_pending">(translation in progress — falls back to Hindi for now)</string>
 
+    <!-- Contact card: WhatsApp + Email. Phone/email are baked at compile time
+         in BuildConfig from app/build.gradle.kts so they're trivial to swap
+         later without touching the UI. -->
+    <string name="settings_contact_title">Contact us</string>
+    <string name="settings_contact_whatsapp">WhatsApp</string>
+    <string name="settings_contact_email">Email</string>
+    <string name="settings_contact_hint">Reach out for feedback, vrat-rule corrections, or installation help.</string>
+    <string name="settings_contact_no_app">No app available to handle this. Install WhatsApp / an email app and try again.</string>
+
     <!-- Numerals preference (Latin / native). Orthogonal to the Language picker. -->
     <string name="settings_numerals_title">Numerals</string>
     <string name="settings_numerals_latin">Latin (123)</string>
