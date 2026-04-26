@@ -54,6 +54,23 @@
     <string name="settings_sunrise_offset_value">%1$d मिनट</string>
     <string name="settings_sunrise_offset_hint">केवल तब उपयोग करें यदि NavPanchang का सूर्योदय आपके मुद्रित पंचांग से लगातार अलग हो। सीमा: −2 से +2 मिनट।</string>
 
+    <!-- Companion-language picker. -->
+    <string name="settings_language_title">भाषा</string>
+    <string name="settings_language_hint">NavPanchang अंग्रेज़ी के साथ एक क्षेत्रीय भाषा दिखाता है। दूसरी भाषा चुनें।</string>
+    <string name="settings_language_pending">(अनुवाद चल रहा है — फिलहाल हिन्दी पर वापस आ जाएगा)</string>
+
+    <!-- Numerals preference. -->
+    <string name="settings_numerals_title">अंक प्रणाली</string>
+    <string name="settings_numerals_latin">लैटिन (123)</string>
+    <string name="settings_numerals_native">देवनागरी (१२३)</string>
+    <string name="settings_numerals_hint">संख्याएँ और समय कैसे दिखें। लैटिन अधिकांश ऐप्स से मेल खाता है; देवनागरी मुद्रित पंचांग से मेल खाती है।</string>
+
+    <!-- Lunar-month convention toggle. -->
+    <string name="settings_lunar_convention_title">मास परंपरा</string>
+    <string name="settings_lunar_convention_purnimanta">पूर्णिमंत (Purnimanta)</string>
+    <string name="settings_lunar_convention_amanta">अमांत (Amanta)</string>
+    <string name="settings_lunar_convention_hint">वही व्रत, वही दिन — केवल कृष्ण पक्ष का मास नाम भिन्न होता है। पूर्णिमंत उत्तर भारत में, अमांत पश्चिम/दक्षिण भारत में प्रचलित है।</string>
+
     <!-- Settings about. -->
     <string name="settings_about_title">परिचय</string>
     <string name="about_tagline">हिन्दू व्रत रखने वालों के लिए सदस्यता-प्रथम पंचांग और अलार्म ऐप।</string>
@@ -67,6 +84,7 @@
     <string name="calendar_day_detail_sunset">सूर्यास्त: %1$s</string>
     <string name="calendar_day_detail_tithi">तिथि: %1$s</string>
     <string name="calendar_day_detail_nakshatra">नक्षत्र: %1$s</string>
+    <string name="calendar_day_detail_lunar_month">मास: %1$s</string>
     <string name="calendar_day_detail_adhik_info">यह अधिक मास है — नियमित व्रत अभी भी होंगे, लेकिन वार्षिक उत्सव अगले (निज) मास में मनाए जाएँगे।</string>
     <string name="calendar_day_detail_kshaya_info">आज क्षय तिथि है — दो सूर्योदय के बीच प्रारंभ होकर समाप्त हो गई। नवपञ्चाङ्ग इसे सबसे लंबे समय वाले दिन पर मानता है।</string>
     <string name="calendar_day_detail_close">बंद करें</string>

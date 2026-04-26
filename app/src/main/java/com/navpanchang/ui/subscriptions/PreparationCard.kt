@@ -54,7 +54,7 @@ private fun PreparingCardContent(
         label = stringResource(R.string.state_preparing_tomorrow),
         primary = state.event.nameEn,
         secondary = state.event.nameHi,
-        tertiary = stringResource(
+        tertiary = com.navpanchang.util.safeStringResource(
             R.string.state_preparing_sunrise_in,
             state.hoursUntilSunrise
         )

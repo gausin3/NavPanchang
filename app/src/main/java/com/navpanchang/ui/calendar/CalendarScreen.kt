@@ -103,7 +103,7 @@ private fun MonthHeader(
             Icon(Icons.Filled.ChevronLeft, contentDescription = null)
         }
         Text(
-            text = stringResource(
+            text = com.navpanchang.util.safeStringResource(
                 R.string.calendar_month_header,
                 state.month.month.getDisplayName(TextStyle.FULL, Locale.getDefault()),
                 state.month.year

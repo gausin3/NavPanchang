@@ -62,18 +62,25 @@ fun SubscriptionRow(
                     style = MaterialTheme.typography.bodyMedium
                 )
                 val next = row.nextOccurrence
-                if (next != null) {
-                    Text(
+                when {
+                    next != null -> Text(
                         text = formatNextLine(next.dateLocal),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                } else {
-                    Text(
+                    // Subscribed but the 24-month compute hasn't finished writing the
+                    // first occurrence row yet. Real transient state — typically clears
+                    // within a few seconds after the user toggles the switch on.
+                    row.enabled -> Text(
                         text = stringResource(R.string.subscription_row_computing),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                    // Unsubscribed event in the "Add more events" list — nothing is being
+                    // computed for it. Showing "Computing…" here was misleading: implied
+                    // background work that won't start until the user toggles the switch.
+                    // Render no bottom line at all for a cleaner row.
+                    else -> Unit
                 }
             }
             Switch(
@@ -92,7 +99,9 @@ private fun formatNextLine(date: LocalDate): String {
     return when {
         days == 0L -> stringResource(R.string.subscription_row_next_today, absolute)
         days == 1L -> stringResource(R.string.subscription_row_next_tomorrow, absolute)
-        days in 2..30 -> stringResource(R.string.subscription_row_next_in_days, absolute, days)
+        days in 2..30 -> com.navpanchang.util.safeStringResource(
+            R.string.subscription_row_next_in_days, absolute, days
+        )
         else -> stringResource(R.string.subscription_row_next_generic, absolute)
     }
 }

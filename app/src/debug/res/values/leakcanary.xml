@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Debug-only override for LeakCanary's bundled launcher icon.
+
+  By default LeakCanary 2.x adds its own activity-alias with a `LAUNCHER` intent filter,
+  which means generic launchers (and `adb shell monkey -c LAUNCHER`) can pick up the
+  LeakCanary "Leaks" entry instead of NavPanchang. This isn't visible to real users on a
+  production build (LeakCanary only ships in `debugImplementation`), but it's confusing
+  in development and during automated testing.
+
+  Setting this bool to false suppresses the launcher icon while keeping LeakCanary's
+  in-process leak monitoring fully active. Standard LeakCanary override; see
+  https://square.github.io/leakcanary/recipes/#disabling-leakcanary
+-->
+<resources>
+    <bool name="leak_canary_add_launcher_icon">false</bool>
+</resources>

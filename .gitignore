@@ -46,3 +46,8 @@ app/build/test-results/
 
 # Per-user Claude Code settings (tool permission cache — never commit)
 .claude/settings.local.json
+# Claude Code temporary worktrees — generated, never commit.
+.claude/worktrees/
+
+# Kotlin compiler session cache — generated, never commit.
+.kotlin/

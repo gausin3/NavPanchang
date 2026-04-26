@@ -16,6 +16,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.navpanchang.R
+import com.navpanchang.panchang.bilingual
+import com.navpanchang.panchang.bilingualQualified
+import com.navpanchang.panchang.companionName
+import com.navpanchang.panchang.displayLunarMonth
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -54,17 +58,35 @@ fun DayDetailSheet(
             Text(
                 text = stringResource(
                     R.string.calendar_day_detail_tithi,
-                    detail.tithi.qualifiedNameEn + " (" + detail.tithi.qualifiedNameHi + ")"
+                    detail.tithi.bilingualQualified(detail.appLanguage)
                 ),
                 style = MaterialTheme.typography.bodyLarge
             )
             Text(
                 text = stringResource(
                     R.string.calendar_day_detail_nakshatra,
-                    detail.nakshatra.nameEn + " (" + detail.nakshatra.nameHi + ")"
+                    bilingual(detail.nakshatra.nameEn, detail.nakshatra.companionName(detail.appLanguage))
                 ),
                 style = MaterialTheme.typography.bodyLarge
             )
+
+            // Lunar month is shown only when at least one occurrence on this day carries
+            // a known month (the engine's canonical Amanta value). Translation to the
+            // user's preferred convention happens here at render time. Days with no
+            // subscribed event currently leave this row out — wiring per-day classification
+            // for arbitrary days is a follow-up. See TECH_DESIGN.md §Amanta vs Purnimanta.
+            detail.lunarMonth?.let { engineMonth ->
+                val displayMonth = displayLunarMonth(
+                    engineMonth, detail.tithi.paksha, detail.lunarConvention
+                )
+                Text(
+                    text = stringResource(
+                        R.string.calendar_day_detail_lunar_month,
+                        bilingual(displayMonth.nameEn, displayMonth.companionName(detail.appLanguage))
+                    ),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
 
             Spacer(Modifier.height(4.dp))
 

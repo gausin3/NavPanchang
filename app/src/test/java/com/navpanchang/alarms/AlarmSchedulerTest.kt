@@ -87,7 +87,7 @@ class AlarmSchedulerTest {
             .build()
         alarmRepository = AlarmRepository(db.alarmDao())
         occurrenceRepository = OccurrenceRepository(db.occurrenceDao())
-        metadataRepository = MetadataRepository(db.metadataDao())
+        metadataRepository = MetadataRepository(db.metadataDao(), context)
         scheduler = AlarmScheduler(context, alarmRepository, occurrenceRepository, metadataRepository)
 
         // ShadowAlarmManager defaults vary across Robolectric versions. Pin the exact-
