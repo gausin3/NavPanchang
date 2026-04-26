@@ -96,8 +96,8 @@ class MetadataRepositoryTest {
 
     @Test
     fun `numeralSystem round-trips after setNumeralSystem`() {
-        repository.setNumeralSystem(NumeralSystem.DEVANAGARI)
-        assertEquals(NumeralSystem.DEVANAGARI, repository.numeralSystem())
+        repository.setNumeralSystem(NumeralSystem.NATIVE)
+        assertEquals(NumeralSystem.NATIVE, repository.numeralSystem())
     }
 
     @Test

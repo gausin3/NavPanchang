@@ -355,7 +355,7 @@ private fun NumeralsCard(
                 text = stringResource(R.string.settings_numerals_title),
                 style = MaterialTheme.typography.titleMedium
             )
-            val options = listOf(NumeralSystem.LATIN, NumeralSystem.DEVANAGARI)
+            val options = listOf(NumeralSystem.LATIN, NumeralSystem.NATIVE)
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 options.forEachIndexed { index, option ->
                     SegmentedButton(
@@ -370,7 +370,7 @@ private fun NumeralsCard(
                             text = stringResource(
                                 when (option) {
                                     NumeralSystem.LATIN -> R.string.settings_numerals_latin
-                                    NumeralSystem.DEVANAGARI -> R.string.settings_numerals_native
+                                    NumeralSystem.NATIVE -> R.string.settings_numerals_native
                                 }
                             )
                         )

@@ -33,26 +33,30 @@ enum class AppLanguage(val tag: String, val nativeName: String) {
 }
 
 /**
- * Numeral system used for digits in the UI — both `%d` interpolations and
- * date/time output. Orthogonal to [AppLanguage]: a Hindi-UI user can choose either
- * Devanagari (matches a printed पंचांग) or Latin (matches most digital apps).
+ * Numeral system used for digits in the UI — both `%d` interpolations and date/time
+ * output. Orthogonal to [AppLanguage]: a Hindi-UI user can choose either Latin
+ * (matches most digital apps) or Native (matches a printed पंचांग — Devanagari
+ * digits like ११ for 11).
  *
- * Default is [LATIN] for everyone — matches mainstream apps and avoids mixed-script
- * bugs in fallback scenarios. Users who want native digits can opt in via Settings.
+ * Default is [LATIN] for everyone. Mainstream apps default to Latin even in
+ * non-Latin script UIs (Google, Microsoft, Apple all do this in Hindi UI), and it
+ * eliminates mixed-script bugs when a translation hasn't shipped yet for the
+ * picked language. Users who explicitly want native digits can flip the Settings
+ * toggle.
  *
- * Implementation: when [LATIN], we append the BCP-47 unicode extension `-u-nu-latn` to
- * the active locale tag in `MainActivity.attachBaseContext`. That tells Java/Android's
- * locale-aware formatters (`String.format`, `DateTimeFormatter`) to emit Latin digits
- * regardless of the language. When [DEVANAGARI] (or whatever the language's native
- * numbering system is), we leave the locale alone and the language's default numbering
- * applies — Devanagari for Hindi, etc.
+ * **Implementation note — JVM default does NOT give native digits.**
+ * `Locale.forLanguageTag("hi")` returns Latin digits by default on modern JVMs;
+ * native digits require the explicit BCP-47 unicode extension `-u-nu-<system>`.
+ * `MainActivity.attachBaseContext` composes the right tag based on this enum AND
+ * the user's [AppLanguage]:
  *
- * For non-Devanagari languages (Tamil, Gujarati) the [DEVANAGARI] choice falls back to
- * the language's own native numbering (Tamil digits or Gujarati digits) — naming the
- * enum value [DEVANAGARI] is shorthand for "use the language's own numerals." The
- * Settings UI surfaces it with a more accurate label like "Native".
+ *  * [LATIN]  → `<lang>-u-nu-latn` (ASCII for any language).
+ *  * [NATIVE] → `<lang>-u-nu-<numbering>` where `<numbering>` is `deva` for
+ *               Hindi/Marathi, `tamldec` for Tamil, `gujr` for Gujarati, and
+ *               falls back to `latn` for English (which has no native non-Latin
+ *               digit system).
  */
 enum class NumeralSystem {
     LATIN,
-    DEVANAGARI
+    NATIVE
 }

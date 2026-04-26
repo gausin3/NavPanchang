@@ -70,7 +70,7 @@
     <string name="settings_numerals_title">अंक प्रणाली</string>
     <string name="settings_numerals_latin">लैटिन (123)</string>
     <string name="settings_numerals_native">देवनागरी (१२३)</string>
-    <string name="settings_numerals_hint">संख्याएँ और समय कैसे दिखें। लैटिन अधिकांश ऐप्स से मेल खाता है; देवनागरी मुद्रित पंचांग से मेल खाती है।</string>
+    <string name="settings_numerals_hint">संख्याएँ और समय कैसे दिखें। लैटिन (123) अधिकांश डिजिटल ऐप्स से मेल खाता है। नेटिव आपकी भाषा के अंक उपयोग करता है — हिन्दी/मराठी के लिए देवनागरी (१२३), तमिल (௧௨௩), या गुजराती (૧૨૩)।</string>
 
     <!-- Lunar-month convention toggle. -->
     <string name="settings_lunar_convention_title">मास परंपरा</string>

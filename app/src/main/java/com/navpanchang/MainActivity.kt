@@ -69,16 +69,24 @@ class MainActivity : ComponentActivity() {
         val effectiveLanguageTag =
             if (pickedLanguageTag in TRANSLATED_LANGUAGES) pickedLanguageTag else "hi"
 
-        // Compose the final locale tag, optionally appending the BCP-47 unicode
-        // numbering-system extension. `-u-nu-latn` forces Latin digits even in a
-        // Devanagari-language UI (the "Hinglish-y" outcome the user described).
+        // Compose the final locale tag, appending the BCP-47 unicode numbering-system
+        // extension `-u-nu-<system>`. The JVM's default for non-Latin-script locales
+        // (Locale.forLanguageTag("hi"), etc.) is *Latin* digits — so to get native
+        // numerals we MUST be explicit. Without the extension, both LATIN and NATIVE
+        // would silently produce identical Latin output. See NumeralSystem kdoc.
         val numerals = storedNumerals
             ?.let { runCatching { com.navpanchang.panchang.NumeralSystem.valueOf(it) }.getOrNull() }
             ?: com.navpanchang.panchang.NumeralSystem.LATIN
-        val finalTag = when (numerals) {
-            com.navpanchang.panchang.NumeralSystem.LATIN -> "$effectiveLanguageTag-u-nu-latn"
-            com.navpanchang.panchang.NumeralSystem.DEVANAGARI -> effectiveLanguageTag
+        val numberingSystem = when (numerals) {
+            com.navpanchang.panchang.NumeralSystem.LATIN -> "latn"
+            com.navpanchang.panchang.NumeralSystem.NATIVE -> when (effectiveLanguageTag) {
+                "hi", "mr" -> "deva"   // Devanagari (११)
+                "ta" -> "tamldec"      // Tamil (௧௧)
+                "gu" -> "gujr"         // Gujarati (૧૧)
+                else -> "latn"          // English / unknown — Latin is correct
+            }
         }
+        val finalTag = "$effectiveLanguageTag-u-nu-$numberingSystem"
         val locale = Locale.forLanguageTag(finalTag)
         super.attachBaseContext(LanguageSwitchInterceptor.wrap(newBase, locale))
     }

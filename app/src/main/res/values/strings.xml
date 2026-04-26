@@ -79,7 +79,7 @@
     <string name="settings_numerals_title">Numerals</string>
     <string name="settings_numerals_latin">Latin (123)</string>
     <string name="settings_numerals_native">Native (१२३)</string>
-    <string name="settings_numerals_hint">How numbers and times appear. Latin matches most apps; Native matches a printed पंचांग.</string>
+    <string name="settings_numerals_hint">How numbers and times appear. Latin (123) matches most digital apps. Native uses your language\'s own digits — Devanagari (१२३) for Hindi/Marathi, Tamil (௧௨௩), or Gujarati (૧૨૩).</string>
 
     <!-- Lunar-month convention toggle. -->
     <string name="settings_lunar_convention_title">Lunar month convention</string>
