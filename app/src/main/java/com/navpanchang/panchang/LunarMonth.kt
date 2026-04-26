@@ -63,3 +63,44 @@ data class ClassifiedLunarMonth(
         LunarMonthType.Kshaya -> "क्षय ${month.nameHi}"
     }
 }
+
+/**
+ * Which lunar-month boundary convention the user prefers for *displaying* month names.
+ * Both conventions agree on the actual day a vrat falls on — they only differ in what
+ * month name is attached to the *Krishna paksha* (waning fortnight). Shukla paksha is
+ * identical in both.
+ *
+ * * [AMANTA] — month ends on Amavasya (new moon). Common in Maharashtra, Gujarat,
+ *   Karnataka, Andhra Pradesh, Telangana, Tamil Nadu, Kerala, Goa.
+ * * [PURNIMANTA] — month ends on Purnima (full moon). Common in UP, Bihar, Rajasthan,
+ *   Punjab, Haryana, Delhi, MP, Chhattisgarh, Jharkhand, Odisha, HP, Uttarakhand.
+ *
+ * **Important architectural note:** the engine ([com.navpanchang.panchang.AdhikMaasDetector]
+ * and the rules in `events.json`) is canonically Amanta. The user's convention preference
+ * affects display only — never matching. See [displayLunarMonth] for the translation rule
+ * and TECH_DESIGN.md §Amanta vs Purnimanta.
+ */
+enum class LunarConvention {
+    AMANTA,
+    PURNIMANTA
+}
+
+/**
+ * Translate the engine's canonical (Amanta) lunar-month label to what the user should
+ * see given their chosen [convention].
+ *
+ * Rule: in Purnimanta, Krishna paksha (waning fortnight) is labeled with the *next* lunar
+ * month's name. So engine `Magha Krishna 14` (Mahashivratri) = "Phalguna Krishna 14" to
+ * a Purnimanta user. Shukla paksha is identical in both conventions and never shifts.
+ *
+ * Pure / stateless — safe to call from Compose recomposition.
+ */
+fun displayLunarMonth(
+    month: LunarMonth,
+    paksha: Paksha,
+    convention: LunarConvention
+): LunarMonth = if (convention == LunarConvention.PURNIMANTA && paksha == Paksha.Krishna) {
+    LunarMonth.ofIndex((month.ordinalIndex % 12) + 1)
+} else {
+    month
+}

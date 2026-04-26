@@ -1,5 +1,8 @@
 package com.navpanchang.ui.calendar
 
+import com.navpanchang.panchang.AppLanguage
+import com.navpanchang.panchang.LunarConvention
+import com.navpanchang.panchang.LunarMonth
 import com.navpanchang.panchang.Nakshatra
 import com.navpanchang.panchang.Occurrence
 import com.navpanchang.panchang.Tithi
@@ -40,5 +43,17 @@ data class DayDetail(
     val sunsetUtc: Long?,
     val occurrences: List<Occurrence>,
     val isAdhik: Boolean,
-    val isKshayaContext: Boolean
+    val isKshayaContext: Boolean,
+    /**
+     * The engine's canonical-Amanta lunar month for this day, when known. Currently
+     * sourced from the first occurrence on this day; days without a subscribed
+     * occurrence leave this null until a lightweight per-day classifier lands.
+     * Translate to the user's [lunarConvention] at render time via
+     * [com.navpanchang.panchang.displayLunarMonth].
+     */
+    val lunarMonth: LunarMonth? = null,
+    /** The user's preferred lunar-month convention; resolved once at view-model load. */
+    val lunarConvention: LunarConvention = LunarConvention.PURNIMANTA,
+    /** The user's chosen *companion* language for bilingual rendering. */
+    val appLanguage: AppLanguage = AppLanguage.HINDI
 )

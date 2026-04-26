@@ -1,6 +1,7 @@
 package com.navpanchang.location
 
 import android.content.Context
+import com.navpanchang.panchang.LunarConvention
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -27,7 +28,15 @@ class CityCatalog @Inject constructor(
         val country: String,
         val lat: Double,
         val lon: Double,
-        val tz: String
+        val tz: String,
+        /**
+         * Suggested default lunar-month-display convention for users picking this city
+         * during onboarding. Sourced from per-region tradition (e.g. Maharashtra/South ⇒
+         * AMANTA; UP/Bihar/Rajasthan ⇒ PURNIMANTA). Non-Indian cities default to
+         * `PURNIMANTA` because that's the more widespread published-almanac convention
+         * among the diaspora; the user can flip it in Settings.
+         */
+        val defaultConvention: LunarConvention
     )
 
     private val cachedCities: List<City> by lazy { loadFromAssets() }
@@ -57,6 +66,11 @@ class CityCatalog @Inject constructor(
         return buildList(citiesArr.length()) {
             for (i in 0 until citiesArr.length()) {
                 val obj = citiesArr.getJSONObject(i)
+                val convention = obj.optString("defaultConvention", "PURNIMANTA")
+                    .let { stored ->
+                        runCatching { LunarConvention.valueOf(stored) }
+                            .getOrDefault(LunarConvention.PURNIMANTA)
+                    }
                 add(
                     City(
                         id = obj.getString("id"),
@@ -65,7 +79,8 @@ class CityCatalog @Inject constructor(
                         country = obj.getString("country"),
                         lat = obj.getDouble("lat"),
                         lon = obj.getDouble("lon"),
-                        tz = obj.getString("tz")
+                        tz = obj.getString("tz"),
+                        defaultConvention = convention
                     )
                 )
             }

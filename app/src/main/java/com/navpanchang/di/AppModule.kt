@@ -23,7 +23,11 @@ object AppModule {
     @Singleton
     fun provideNavPanchangDb(@ApplicationContext context: Context): NavPanchangDb =
         Room.databaseBuilder(context, NavPanchangDb::class.java, NavPanchangDb.DB_NAME)
-            .fallbackToDestructiveMigration() // Fine for Phase 0 — real migrations land in Phase 3.
+            .addMigrations(NavPanchangDb.MIGRATION_1_2)
+            // Safety net: if a future schema bump arrives before its migration is wired
+            // up, prefer wiping local data over crashing on launch. Real migrations should
+            // always be added above so user data survives.
+            .fallbackToDestructiveMigration()
             .build()
 
     @Provides

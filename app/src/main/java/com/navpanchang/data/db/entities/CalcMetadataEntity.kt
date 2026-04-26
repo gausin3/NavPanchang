@@ -23,5 +23,12 @@ data class CalcMetadataEntity(
     val ayanamshaType: String = "LAHIRI",
     val calculationTradition: String = "DRIK",
     val eventCatalogVersion: Int = 0,
-    val sunriseOffsetMinutes: Int = 0
+    val sunriseOffsetMinutes: Int = 0,
+    /**
+     * The user's preferred lunar-month-boundary convention (display-only). Defaults to
+     * `PURNIMANTA` on fresh install — onboarding overwrites this from the picked home
+     * city's `defaultConvention`. Stored as the [com.navpanchang.panchang.LunarConvention]
+     * enum's `name`; resolve via `MetadataRepository.lunarConvention()`.
+     */
+    val lunarConvention: String = "PURNIMANTA"
 )

@@ -1,6 +1,6 @@
 {
   "_comment": "Seed data for event_definitions. Bump catalogVersion whenever any event rule changes, then the EventCatalogSyncer will upsert on next app launch while preserving user subscriptions.",
-  "catalogVersion": 1,
+  "catalogVersion": 2,
   "events": [
     {
       "id": "shukla_ekadashi",
@@ -139,12 +139,12 @@
     },
     {
       "id": "mahashivratri",
-      "seedVersion": 1,
+      "seedVersion": 2,
       "nameEn": "Mahashivratri",
       "nameHi": "महाशिवरात्रि",
       "category": "festival",
       "ruleType": "TithiInLunarMonth",
-      "ruleParams": { "tithi": 29, "lunarMonth": "Phalguna" },
+      "ruleParams": { "tithi": 29, "lunarMonth": "Magha" },
       "vratLogic": false,
       "observeInAdhik": false,
       "hasParana": false,

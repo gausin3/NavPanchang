@@ -74,7 +74,12 @@ class OccurrenceComputerTest {
         category = EventCategory.FESTIVAL,
         rule = EventRule.TithiInLunarMonth(
             tithiIndex = 29,
-            lunarMonth = LunarMonth.Phalguna,
+            // Engine canonicalizes lunar months as Sankranti-in-Amavasya-window (Amanta).
+            // Mahashivratri (Krishna Chaturdashi) lands in the lunar window containing
+            // Kumbha Sankranti — which AdhikMaasDetector.lunarMonthForSankranti maps to
+            // Magha. Purnimanta users see "Phalguna" via the display-time translation
+            // (LunarMonth.displayLunarMonth). See TECH_DESIGN.md §Amanta vs Purnimanta.
+            lunarMonth = LunarMonth.Magha,
             suppressInAdhik = true
         ),
         observeInAdhik = false,
@@ -169,7 +174,7 @@ class OccurrenceComputerTest {
     }
 
     @Test
-    fun `Mahashivratri fires exactly once per year in Nija Phalguna`() {
+    fun `Mahashivratri fires exactly once per year in Nija Magha`() {
         val request = OccurrenceComputer.Request(
             events = listOf(mahashivratri),
             startDate = LocalDate.of(2024, 1, 1),
@@ -184,7 +189,7 @@ class OccurrenceComputerTest {
         val occurrences = computer.computeWindow(request)
 
         assertEquals(
-            "Mahashivratri should fire exactly once in 2024 (Nija Phalguna = early March)",
+            "Mahashivratri should fire exactly once in 2024 (Nija Magha = early March)",
             1, occurrences.size
         )
 

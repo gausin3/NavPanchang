@@ -109,6 +109,8 @@ class CalendarViewModel @Inject constructor(
         withContext(Dispatchers.Default) {
             val location = resolveLocation() ?: return@withContext null
             val ayanamshaType = metadataRepository.ayanamshaType()
+            val lunarConvention = metadataRepository.lunarConvention()
+            val appLanguage = metadataRepository.appLanguage()
             val snapshot = panchangCalculator.computeAtSunrise(
                 day, location.lat, location.lon, location.zone, ayanamshaType
             ) ?: return@withContext null
@@ -126,7 +128,10 @@ class CalendarViewModel @Inject constructor(
                 sunsetUtc = sunset,
                 occurrences = occurrences,
                 isAdhik = occurrences.any { it.isAdhik },
-                isKshayaContext = occurrences.any { it.isKshayaContext }
+                isKshayaContext = occurrences.any { it.isKshayaContext },
+                lunarMonth = occurrences.firstNotNullOfOrNull { it.lunarMonth },
+                lunarConvention = lunarConvention,
+                appLanguage = appLanguage
             )
         }
 
