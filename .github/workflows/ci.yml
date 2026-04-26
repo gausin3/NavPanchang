@@ -1,5 +1,16 @@
 name: Android CI/CD
 
+# Required GitHub Actions secrets (set via Settings → Secrets and variables →
+# Actions). See docs/RELEASE.md for how to obtain each value.
+#
+#   KEYSTORE_BASE64        — base64-encoded release keystore
+#   KEYSTORE_PASSWORD      — keystore password (PKCS12 → same as KEY_PASSWORD)
+#   KEY_ALIAS              — `navpanchang` (the alias used by generate_keystore.sh)
+#   KEY_PASSWORD           — same value as KEYSTORE_PASSWORD (PKCS12 unifies them)
+#   PLAY_STORE_CONFIG_JSON — Play Console service account JSON. Leave empty
+#                            until a Play Console account exists; the `deploy`
+#                            job is skipped automatically when missing.
+
 on:
   push:
     branches: [main]
@@ -42,13 +53,19 @@ jobs:
           path: app/build/reports/tests/
 
   # ---------------------------------------------------------------------
-  # Stage 2 — Alpha build. Signed AAB + SBOM artifact.
-  # Runs only on pushes to main (not PRs, not tags).
+  # Stage 2 — Signed build. Produces both APK (for sideload) and AAB
+  # (for Play Store). Runs on push to main AND on tag pushes — the latter
+  # so a `git push --tags` triggers the release flow without first having
+  # to land a no-op commit on main.
   # ---------------------------------------------------------------------
   build:
-    name: Build Signed AAB
+    name: Build Signed APK + AAB
     needs: validate
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: |
+      github.event_name == 'push' && (
+        github.ref == 'refs/heads/main' ||
+        startsWith(github.ref, 'refs/tags/v')
+      )
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -66,36 +83,121 @@ jobs:
       - name: Decode keystore
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > /tmp/upload-key.jks
+          # Sanity check: keystore must be > 0 bytes. Otherwise the secret was
+          # empty / wrong and we'd fail with a confusing error later.
+          if [ ! -s /tmp/upload-key.jks ]; then
+            echo "::error::Decoded keystore is empty. KEYSTORE_BASE64 secret missing or wrong."
+            exit 1
+          fi
 
-      - name: Build signed release AAB
+      - name: Build signed release APK + AAB
         env:
           KEYSTORE_FILE: /tmp/upload-key.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          # Tag-driven: when running on a tag, use the tag's run_number for
+          # versionCode. Branch-driven: keep the run_number monotonic anyway.
           VERSION_CODE: ${{ github.run_number }}
-        run: ./gradlew :app:bundleRelease
+        run: ./gradlew :app:assembleRelease :app:bundleRelease
 
-      - name: Upload AAB + mapping artifacts
+      - name: Upload release artifacts
         uses: actions/upload-artifact@v4
         with:
           name: release-artifacts
           path: |
+            app/build/outputs/apk/release/*.apk
             app/build/outputs/bundle/release/*.aab
             app/build/outputs/mapping/release/mapping.txt
           retention-days: 30
 
   # ---------------------------------------------------------------------
-  # Stage 3 — Deploy to Play Store Internal Testing track.
-  # Runs only on tag pushes (e.g. v1.0.0).
+  # Stage 3 — GitHub Release. On tag push, attach the signed APK and the
+  # source archive (AGPL §5/§13 compliance) to the GitHub Release page so
+  # sideloaded users can download a verifiable APK and inspect the source.
+  # The in-app updater reads this same release.
   # ---------------------------------------------------------------------
-  deploy:
-    name: Deploy to Internal Testing
+  github-release:
+    name: Attach APK + source to GitHub Release
     needs: build
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - name: Download AAB artifact
+      - name: Checkout (full history for git-archive)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-artifacts
+          path: artifacts
+
+      - name: Create source tarball (AGPL compliance)
+        run: |
+          TAG_NAME="${GITHUB_REF#refs/tags/}"
+          git archive --format=tar.gz \
+            --prefix="navpanchang-${TAG_NAME}/" \
+            -o "navpanchang-${TAG_NAME}-source.tar.gz" HEAD
+
+      - name: Locate APK
+        id: apk
+        run: |
+          APK=$(find artifacts -name "*.apk" | head -n1)
+          if [ -z "$APK" ]; then
+            echo "::error::No APK found in artifacts."
+            exit 1
+          fi
+          # Rename to a predictable, version-tagged filename so the in-app
+          # updater can hard-code the asset URL pattern.
+          TAG_NAME="${GITHUB_REF#refs/tags/}"
+          DEST="navpanchang-${TAG_NAME}.apk"
+          cp "$APK" "$DEST"
+          echo "path=$DEST" >> "$GITHUB_OUTPUT"
+
+      - name: Attach to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ${{ steps.apk.outputs.path }}
+            navpanchang-*-source.tar.gz
+          body: |
+            NavPanchang ${{ github.ref_name }}
+
+            **Sideloaded users:** download the `.apk` asset below and tap to
+            install. Android will prompt for permission to install from this
+            source on first install. The in-app update check will surface
+            future releases automatically.
+
+            **Verifying the APK:** confirm the SHA-256 fingerprint matches
+            the one published in `docs/RELEASE.md`:
+
+                apksigner verify --print-certs navpanchang-${{ github.ref_name }}.apk
+
+            **AGPL v3:** complete source attached as
+            `navpanchang-${{ github.ref_name }}-source.tar.gz`. Swiss
+            Ephemeris attribution: see
+            `app/src/main/assets/licenses/swisseph_NOTICE.txt` in the
+            archive.
+
+  # ---------------------------------------------------------------------
+  # Stage 4 — Deploy AAB to Play Store Internal Testing track.
+  # Runs only on tag pushes AND only when PLAY_STORE_CONFIG_JSON is set
+  # (so the workflow doesn't fail on tag pushes before the Play Console
+  # service account exists).
+  # ---------------------------------------------------------------------
+  deploy:
+    name: Deploy AAB to Play Store Internal Testing
+    needs: build
+    if: |
+      startsWith(github.ref, 'refs/tags/v') &&
+      vars.HAVE_PLAY_STORE_ACCOUNT == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download release artifacts
         uses: actions/download-artifact@v4
         with:
           name: release-artifacts
@@ -109,40 +211,3 @@ jobs:
           track: internal
           status: completed
           mappingFile: mapping/release/mapping.txt
-
-  # ---------------------------------------------------------------------
-  # Stage 4 — Publish source archive for AGPL compliance.
-  # Runs on tag push — attaches a source-tree zip to the GitHub Release so
-  # users can audit the code without needing a GitHub account.
-  # ---------------------------------------------------------------------
-  source-release:
-    name: Publish source archive (AGPL compliance)
-    needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Create source tarball
-        run: |
-          TAG_NAME="${GITHUB_REF#refs/tags/}"
-          git archive --format=tar.gz \
-            --prefix="navpanchang-${TAG_NAME}/" \
-            -o "navpanchang-${TAG_NAME}-source.tar.gz" HEAD
-
-      - name: Attach to release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: navpanchang-*-source.tar.gz
-          body: |
-            NavPanchang ${{ github.ref_name }}
-
-            This release is distributed under AGPL v3. The complete source code
-            is attached as `navpanchang-*-source.tar.gz` for auditing and
-            redistribution per AGPL §5 and §13.
-
-            Swiss Ephemeris attribution: see
-            `app/src/main/assets/licenses/swisseph_NOTICE.txt` in the archive.
