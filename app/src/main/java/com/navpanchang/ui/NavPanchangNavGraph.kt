@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.navpanchang.ui.calendar.CalendarScreen
 import com.navpanchang.ui.settings.AboutScreen
+import com.navpanchang.ui.settings.DebugMenuScreen
 import com.navpanchang.ui.settings.HomeCityPickerScreen
 import com.navpanchang.ui.settings.SettingsScreen
 import com.navpanchang.ui.subscriptions.EventDetailScreen
@@ -31,6 +32,7 @@ object NavDestinations {
     const val EVENT_DETAIL = "event/{${EventDetailViewModel.ARG_EVENT_ID}}"
     const val HOME_CITY_PICKER = "home_city_picker"
     const val ABOUT = "about"
+    const val DEBUG_MENU = "debug_menu"
 
     fun eventDetailRoute(eventId: String): String = "event/$eventId"
 }
@@ -79,7 +81,14 @@ fun NavPanchangNavGraph(
         }
 
         composable(NavDestinations.ABOUT) {
-            AboutScreen(onBack = { navController.popBackStack() })
+            AboutScreen(
+                onBack = { navController.popBackStack() },
+                onUnlockDebugMenu = { navController.navigate(NavDestinations.DEBUG_MENU) }
+            )
+        }
+
+        composable(NavDestinations.DEBUG_MENU) {
+            DebugMenuScreen(onBack = { navController.popBackStack() })
         }
     }
 }

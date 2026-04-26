@@ -26,13 +26,13 @@ class NotificationChannelsTest {
     private val notificationManager: NotificationManager = context.getSystemService()!!
 
     @Test
-    fun `ensureChannels creates all six channels`() {
+    fun `ensureChannels creates all seven channels`() {
         NotificationChannels.ensureChannels(context)
 
         val ids = notificationManager.notificationChannels.map { it.id }
         assertEquals(
-            "Expected 6 channels, got ${ids.size}: $ids",
-            6, ids.size
+            "Expected 7 channels, got ${ids.size}: $ids",
+            7, ids.size
         )
         listOf(
             NotificationChannels.EVENT_REMINDERS,
@@ -40,7 +40,8 @@ class NotificationChannelsTest {
             NotificationChannels.RITUAL_BELL,
             NotificationChannels.RITUAL_SANKH,
             NotificationChannels.RITUAL_TOLL,
-            NotificationChannels.RITUAL_OM
+            NotificationChannels.RITUAL_OM,
+            NotificationChannels.RITUAL_SINGING_BOWL
         ).forEach { expected ->
             assertNotNull("Channel $expected should exist", notificationManager.getNotificationChannel(expected))
         }
@@ -61,14 +62,9 @@ class NotificationChannelsTest {
     }
 
     @Test
-    fun `all four ritual channels have high importance`() {
+    fun `all five ritual channels have high importance`() {
         NotificationChannels.ensureChannels(context)
-        for (id in listOf(
-            NotificationChannels.RITUAL_BELL,
-            NotificationChannels.RITUAL_SANKH,
-            NotificationChannels.RITUAL_TOLL,
-            NotificationChannels.RITUAL_OM
-        )) {
+        for (id in NotificationChannels.RITUAL_CHANNELS) {
             val channel = notificationManager.getNotificationChannel(id)
             assertEquals(
                 "Ritual channel $id must be high-importance",
@@ -81,7 +77,7 @@ class NotificationChannelsTest {
     fun `calling ensureChannels twice does not duplicate channels`() {
         NotificationChannels.ensureChannels(context)
         NotificationChannels.ensureChannels(context)
-        assertEquals(6, notificationManager.notificationChannels.size)
+        assertEquals(7, notificationManager.notificationChannels.size)
     }
 
     // ------------------------------------------------------------------
@@ -105,6 +101,10 @@ class NotificationChannelsTest {
         assertEquals(
             NotificationChannels.RITUAL_OM,
             NotificationChannels.channelIdForSound("ritual_om_mantra")
+        )
+        assertEquals(
+            NotificationChannels.RITUAL_SINGING_BOWL,
+            NotificationChannels.channelIdForSound("ritual_singing_bowl")
         )
     }
 
