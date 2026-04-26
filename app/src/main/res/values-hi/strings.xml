@@ -54,6 +54,17 @@
     <string name="settings_sunrise_offset_value">%1$d मिनट</string>
     <string name="settings_sunrise_offset_hint">केवल तब उपयोग करें यदि NavPanchang का सूर्योदय आपके मुद्रित पंचांग से लगातार अलग हो। सीमा: −2 से +2 मिनट।</string>
 
+    <!-- Per-event sound picker. -->
+    <string name="event_detail_sound_header">अलार्म ध्वनि</string>
+    <string name="event_detail_sound_hint">चुनने के लिए पंक्ति पर टैप करें; पूर्वावलोकन के लिए प्ले बटन दबाएँ।</string>
+    <string name="event_detail_sound_preview">सुनें</string>
+    <string name="event_detail_sound_default">डिफ़ॉल्ट उपयोग करें (%1$s)</string>
+    <string name="ritual_sound_temple_bell">मंदिर घंटा</string>
+    <string name="ritual_sound_sankh">शंख</string>
+    <string name="ritual_sound_bell_toll">आरती घंटी</string>
+    <string name="ritual_sound_om_mantra">ॐ मंत्र</string>
+    <string name="ritual_sound_singing_bowl">गायन पात्र</string>
+
     <!-- Companion-language picker. -->
     <string name="settings_language_title">भाषा</string>
     <string name="settings_language_hint">NavPanchang अंग्रेज़ी के साथ एक क्षेत्रीय भाषा दिखाता है। दूसरी भाषा चुनें।</string>

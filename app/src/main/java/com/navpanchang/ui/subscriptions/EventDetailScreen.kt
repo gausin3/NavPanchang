@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -12,6 +13,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import android.media.MediaPlayer
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -19,10 +23,19 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role
+import com.navpanchang.alarms.RitualSound
+import com.navpanchang.alarms.RitualSounds
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -86,7 +99,8 @@ fun EventDetailScreen(
                 onToggleEnabled = viewModel::onToggleEnabled,
                 onTogglePlanner = viewModel::onTogglePlanner,
                 onToggleObserver = viewModel::onToggleObserver,
-                onToggleParana = viewModel::onToggleParana
+                onToggleParana = viewModel::onToggleParana,
+                onSetSound = viewModel::onSetCustomSound
             )
         }
     }
@@ -99,7 +113,8 @@ private fun EventDetailContent(
     onToggleEnabled: (Boolean) -> Unit,
     onTogglePlanner: (Boolean) -> Unit,
     onToggleObserver: (Boolean) -> Unit,
-    onToggleParana: (Boolean) -> Unit
+    onToggleParana: (Boolean) -> Unit,
+    onSetSound: (String?) -> Unit
 ) {
     val event = state.event ?: return
     LazyColumn(
@@ -159,6 +174,15 @@ private fun EventDetailContent(
                     enabled = state.subscriptionEnabled
                 )
             }
+        }
+
+        item {
+            SoundPickerSection(
+                event = event,
+                currentSoundId = state.customSoundId ?: event.defaultSoundId,
+                enabled = state.subscriptionEnabled,
+                onSetSound = onSetSound
+            )
         }
 
         item {
@@ -277,3 +301,127 @@ private val DATE_FORMATTER: DateTimeFormatter =
 
 private val TIME_FORMATTER: DateTimeFormatter =
     DateTimeFormatter.ofPattern("h:mm a", Locale.getDefault())
+
+/**
+ * Per-event ritual sound picker. Five radio rows, one per channel; tapping a row
+ * persists the choice via [SubscriptionRepository.setSubscription] (through the
+ * ViewModel's `onSetSound` callback). Tapping the play icon plays a foreground
+ * preview via [MediaPlayer] — this is a UI feedback action, not the alarm path
+ * (alarms still fire via NotificationChannel as designed).
+ *
+ * Player is held in a Composable-local `MediaPlayer?` and released on dispose.
+ * Single-instance: tapping a different preview while one is playing stops the
+ * old one first so we don't stack overlapping audio.
+ */
+@Composable
+private fun SoundPickerSection(
+    event: com.navpanchang.panchang.EventDefinition,
+    currentSoundId: String,
+    enabled: Boolean,
+    onSetSound: (String?) -> Unit
+) {
+    val context = LocalContext.current
+    var activePlayer by remember { mutableStateOf<MediaPlayer?>(null) }
+    DisposableEffect(Unit) {
+        onDispose {
+            activePlayer?.release()
+            activePlayer = null
+        }
+    }
+
+    Text(
+        stringResource(R.string.event_detail_sound_header),
+        style = MaterialTheme.typography.titleMedium,
+        modifier = Modifier.padding(top = 16.dp, bottom = 4.dp)
+    )
+
+    RitualSounds.ALL.forEach { sound ->
+        SoundPickerRow(
+            sound = sound,
+            selected = sound.id == currentSoundId,
+            enabled = enabled,
+            isEventDefault = sound.id == event.defaultSoundId,
+            onSelect = {
+                // Persist null when the user picks the event default — keeps the row
+                // tracking the seed default if `events.json` ever changes it.
+                onSetSound(if (sound.id == event.defaultSoundId) null else sound.id)
+            },
+            onPreview = {
+                activePlayer?.release()
+                activePlayer = MediaPlayer.create(context, sound.rawResId)?.apply {
+                    setOnCompletionListener {
+                        it.release()
+                        if (activePlayer === it) activePlayer = null
+                    }
+                    start()
+                }
+            }
+        )
+    }
+
+    Text(
+        text = stringResource(R.string.event_detail_sound_hint),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(top = 4.dp)
+    )
+}
+
+@Composable
+private fun SoundPickerRow(
+    sound: RitualSound,
+    selected: Boolean,
+    enabled: Boolean,
+    isEventDefault: Boolean,
+    onSelect: () -> Unit,
+    onPreview: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .selectable(
+                selected = selected,
+                enabled = enabled,
+                role = Role.RadioButton,
+                onClick = onSelect
+            ),
+        colors = CardDefaults.cardColors(
+            containerColor = if (selected) MaterialTheme.colorScheme.surfaceVariant
+            else MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+        ) {
+            RadioButton(selected = selected, onClick = null, enabled = enabled)
+            Spacer(Modifier.width(8.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(sound.displayName),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                if (isEventDefault) {
+                    Text(
+                        text = stringResource(R.string.event_detail_sound_default,
+                            stringResource(sound.displayName)),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            IconButton(
+                onClick = onPreview,
+                enabled = enabled
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.PlayArrow,
+                    contentDescription = stringResource(R.string.event_detail_sound_preview),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+    }
+}

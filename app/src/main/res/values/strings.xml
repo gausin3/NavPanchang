@@ -60,6 +60,17 @@
     <string name="settings_sunrise_offset_value">%1$d minutes</string>
     <string name="settings_sunrise_offset_hint">Use this only if NavPanchang\'s sunrise consistently differs from your trusted paper panchang. Range: −2 to +2 minutes.</string>
 
+    <!-- Per-event sound picker on EventDetailScreen. -->
+    <string name="event_detail_sound_header">Alarm sound</string>
+    <string name="event_detail_sound_hint">Tap a row to choose; tap the play icon to preview.</string>
+    <string name="event_detail_sound_preview">Preview</string>
+    <string name="event_detail_sound_default">Use event default (%1$s)</string>
+    <string name="ritual_sound_temple_bell">Temple bell</string>
+    <string name="ritual_sound_sankh">Conch (Sankh)</string>
+    <string name="ritual_sound_bell_toll">Bell toll</string>
+    <string name="ritual_sound_om_mantra">Om mantra</string>
+    <string name="ritual_sound_singing_bowl">Singing bowl</string>
+
     <!-- Companion-language picker. The app always shows English plus one regional
          language; this picker chooses which regional language pairs with English. -->
     <string name="settings_language_title">Language</string>
