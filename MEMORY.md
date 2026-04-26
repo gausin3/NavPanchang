@@ -85,6 +85,58 @@ Channel sound cannot be changed after the channel is created without deleting an
 
 If a user enables a subscription 30 minutes before sunrise on the day of an event, the Planner alarm for the *previous* evening has already passed. Do NOT fire it retroactively — that's confusing. `LateSubscriptionGate` writes `pendingStatus = "READY_FOR_TOMORROW"` to the occurrence and the home screen shows a green "Observing Tomorrow" card instead.
 
+### POST_NOTIFICATIONS runtime permission (Android 13+)
+
+On Android 13+ (API 33+), `POST_NOTIFICATIONS` must be granted at runtime before any notification — including our vrat alarms — actually appears. Without it every alarm silently no-ops; the user has no signal anything is wrong.
+
+`MainActivity.onCreate` requests this on every launch where it isn't yet granted (registered via `ActivityResultContracts.RequestPermission`). The Reliability Check section on Settings has a third row "Notifications enabled" that surfaces the state and offers a Fix button: re-prompts via the same launcher if not permanently denied, otherwise opens `Settings.ACTION_APP_NOTIFICATION_SETTINGS` so the user can re-enable manually.
+
+`BatteryOptimizationCheck.Status.allGreen` requires this third checkbox alongside battery-whitelist and exact-alarm. Three things have to be right for alarms to fire reliably; surface all three, fix all three from one card.
+
+No-op on Android < 33 — the permission is auto-granted at install on those versions, but `NotificationManagerCompat.areNotificationsEnabled()` still returns the right value because the user can also disable notifications via the app-level toggle on older Android.
+
+---
+
+## Locale and i18n traps
+
+These fired silently in production-ish code and cost a meaningful amount of debugging time. Document so future contributors don't re-discover them.
+
+### `LocalConfiguration.current.locales[0]` strips BCP-47 unicode extensions
+
+In Compose, reading the active locale via `LocalConfiguration.current.locales[0]` returns a `Locale` with the **language and region intact but the unicode extension stripped**. So if `LanguageSwitchInterceptor` wrapped the activity context with `hi-u-nu-deva` (Hindi locale, Devanagari numbering system), `LocalConfiguration.current.locales[0]` reads back as plain `hi`. Anything depending on the extension (Devanagari numerals, Tamil digits, Gujarati digits) silently degrades to Latin.
+
+**Right pattern** in Compose:
+
+```kotlin
+val configTrigger = LocalConfiguration.current  // recomposition signal only
+val locale = remember(configTrigger) { Locale.getDefault() }   // ← keeps extension
+```
+
+`Locale.getDefault()` preserves the extension because `LanguageSwitchInterceptor.wrap` sets it via `Locale.setDefault(locale)` with the full BCP-47 tag intact. We still observe `LocalConfiguration` so the composable recomposes after a `recreate()`.
+
+`util/DateFormatters.kt` is the canonical home for this pattern; copy from there if you need locale-extension-sensitive formatting in a new screen.
+
+### `DateTimeFormatter` doesn't honor `nu-*` unicode extensions by itself
+
+Even given a `Locale.forLanguageTag("hi-u-nu-deva")`, `DateTimeFormatter.ofPattern(...)` outputs **Latin digits** for dates and times. `String.format(locale, "%d", n)` and `NumberFormat.getInstance(locale).format(n)` both honor the extension; `DateTimeFormatter` does not.
+
+**Right pattern:** chain `.withDecimalStyle(DecimalStyle.of(locale))`. `DecimalStyle.of(...)` DOES read the extension correctly and returns a style with the right zero-digit (e.g. `०` U+0966 for Devanagari).
+
+```kotlin
+DateTimeFormatter.ofPattern(pattern, locale)
+    .withDecimalStyle(DecimalStyle.of(locale))
+```
+
+Without this the user can pick Numerals = Native in Settings, the toggle persists, the locale propagates correctly through `String.format`, but every `DateTimeFormatter`-rendered time/date stays Latin — half the screen renders correctly and half doesn't.
+
+`rememberFormatter` and `makeFormatter` in `util/DateFormatters.kt` apply this automatically; use those instead of constructing `DateTimeFormatter` directly.
+
+### Top-level `private val FORMATTER = DateTimeFormatter.ofPattern(..., Locale.getDefault())` is a footgun
+
+Top-level Kotlin `val`s initialize once per class load with whatever `Locale.getDefault()` was at that moment. `LanguageSwitchInterceptor.wrap` runs in `attachBaseContext` later than first class-load on a fresh process. Result: even after the user picks Hindi+Native, the formatter stays bound to the original device locale forever — no amount of activity recreation fixes it.
+
+Use `rememberFormatter(pattern)` from any `@Composable`, or `makeFormatter(pattern)` for non-Composable contexts (e.g., `BroadcastReceiver`). Never store a `DateTimeFormatter` in a `val` that survives across configuration changes.
+
 ---
 
 ## Conventions
