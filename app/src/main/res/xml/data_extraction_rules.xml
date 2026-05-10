@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Android 12+ data extraction rules. Mirror backup_rules.xml. -->
+<!--
+  Android 12+ data extraction rules. Mirrors backup_rules.xml.
+
+  Same logic: explicit allowlist of database + sharedpref. Everything else
+  (including the Swiss Ephemeris cache at filesDir/ephe/) is excluded by
+  default because it isn't listed under <include>. Adding an explicit
+  <exclude domain="file" path="ephe/" /> trips lint's [FullBackupContent]
+  check because the "file" domain isn't on the include list to begin with.
+-->
 <data-extraction-rules>
     <cloud-backup>
         <include domain="database" path="navpanchang.db" />
         <include domain="sharedpref" path="user_prefs.xml" />
-        <exclude domain="file" path="ephe/" />
     </cloud-backup>
     <device-transfer>
         <include domain="database" path="navpanchang.db" />

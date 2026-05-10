@@ -1,10 +1,14 @@
 package com.navpanchang.alarms
 
+import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import com.navpanchang.data.db.EventDefinitionDao
 import com.navpanchang.data.db.OccurrenceDao
 import com.navpanchang.data.db.SubscriptionDao
@@ -153,7 +157,38 @@ class AlarmReceiver : BroadcastReceiver() {
             .build()
 
         val notifId = AlarmScheduler.requestCodeFor(occurrenceId, kind)
-        NotificationManagerCompat.from(context).notify(notifId, notification)
+
+        // POST_NOTIFICATIONS is runtime-checked on Android 13+. We auto-request
+        // it on first launch from MainActivity, and the Reliability Check card
+        // surfaces a Fix button if the user has denied. But the alarm itself
+        // can still fire (PendingIntents bypass the permission), so we have
+        // to defend against the case where it isn't granted: log diagnostics
+        // and skip notify(), which would otherwise silently no-op anyway on
+        // API 33+ but throws SecurityException with targetSdk 33+ on some
+        // OEM ROMs. Try/catch covers the non-Tiramisu paths and any OEM
+        // surprises.
+        val canPostNotifications =
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                ContextCompat.checkSelfPermission(
+                    context, Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+        if (!canPostNotifications) {
+            Log.w(
+                TAG,
+                "POST_NOTIFICATIONS not granted — $kind alarm fired silently for " +
+                    "occurrence=$occurrenceId. User must grant the permission " +
+                    "(Settings → Reliability Check → Fix)."
+            )
+        } else {
+            try {
+                NotificationManagerCompat.from(context).notify(notifId, notification)
+            } catch (se: SecurityException) {
+                // Some OEM-customized ROMs throw despite a granted permission
+                // (Xiaomi, Vivo with their own notification gates). Don't crash —
+                // log and move on; the user will see the Reliability Check card.
+                Log.e(TAG, "notify() threw SecurityException despite permission check", se)
+            }
+        }
 
         // 6. Prune the scheduled_alarms row — the alarm has fired.
         alarmRepository.deleteByRequestCode(notifId)
