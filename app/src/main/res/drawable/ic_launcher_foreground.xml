@@ -1,15 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Placeholder launcher icon: stylized crescent moon + sun over horizon.
-     Replace with proper artwork before release. -->
+<!--
+    NavPanchang launcher icon — sun mandala with crescent moon.
+
+    Saffron sun (#F28C38) with 8 rays radiating outward, indigo crescent
+    (#1B1464) in the upper-right, sindoor bindu (#B83A2E) at the center.
+    The composition represents the sun/moon conjunction that defines every
+    tithi — the geometric heart of every panchang computation.
+
+    Palette is the manuscript-devotional one from DESIGN.md
+    (saffron / sandal-paper / indigo eve / sindoor).
+
+    Adaptive-icon viewport is 108x108 with the masked safe zone an inset
+    66x66 circle centered at (54, 54). All meaningful elements stay within
+    radius ~33 from center so launcher masks (circle/squircle/rounded-square)
+    don't crop them.
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path
-        android:fillColor="#F28C38"
-        android:pathData="M54,28 A20,20 0 1 1 54,68 A16,16 0 1 0 54,28 Z" />
-    <path
-        android:fillColor="#1B1464"
-        android:pathData="M20,78 L88,78 L88,82 L20,82 Z" />
+
+    <!-- Cardinal rays (top, bottom, left, right) -->
+    <path android:fillColor="#F28C38"
+        android:pathData="M51,22 L57,22 L56,33 L52,33 Z" />
+    <path android:fillColor="#F28C38"
+        android:pathData="M51,86 L57,86 L56,75 L52,75 Z" />
+    <path android:fillColor="#F28C38"
+        android:pathData="M22,51 L22,57 L33,56 L33,52 Z" />
+    <path android:fillColor="#F28C38"
+        android:pathData="M86,51 L86,57 L75,56 L75,52 Z" />
+
+    <!-- Diagonal rays (NW, SW, SE) — NE ray omitted; the moon sits there. -->
+    <path android:fillColor="#F28C38"
+        android:pathData="M28,26 L32,30 L40,40 L36,36 Z" />
+    <path android:fillColor="#F28C38"
+        android:pathData="M28,82 L32,78 L40,68 L36,72 Z" />
+    <path android:fillColor="#F28C38"
+        android:pathData="M82,82 L78,78 L70,68 L74,72 Z" />
+
+    <!-- Sun disc — radius 20 around center (54, 54). -->
+    <path android:fillColor="#F28C38"
+        android:pathData="M54,34 A20,20 0 1,1 54,74 A20,20 0 1,1 54,34 Z" />
+
+    <!-- Crescent moon — outer circle at (76, 36) r=11, with an inner circle
+         at (80, 35) r=9 subtracted via evenOdd, producing a waxing crescent
+         opening toward the lower-left (toward the sun). -->
+    <path android:fillColor="#1B1464"
+        android:fillType="evenOdd"
+        android:pathData="M76,25 A11,11 0 1,1 76,47 A11,11 0 1,1 76,25 Z
+                          M80,26 A9,9 0 1,0 80,44 A9,9 0 1,0 80,26 Z" />
+
+    <!-- Bindu — sindoor dot at the exact center of the sun disc. -->
+    <path android:fillColor="#B83A2E"
+        android:pathData="M54,54 m-2.5,0 a2.5,2.5 0 1,0 5,0 a2.5,2.5 0 1,0 -5,0" />
+
 </vector>

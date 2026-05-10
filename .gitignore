@@ -51,3 +51,8 @@ app/build/test-results/
 
 # Kotlin compiler session cache — generated, never commit.
 .kotlin/
+
+# Marketing artifacts — screenshots + demo videos captured from emulator runs
+# for LinkedIn / README. Heavy, regeneratable, and not part of the build —
+# publish via GitHub Releases or social posts instead of versioning them here.
+marketing/
