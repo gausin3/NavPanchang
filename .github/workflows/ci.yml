@@ -169,8 +169,14 @@ jobs:
 
             **Sideloaded users:** download the `.apk` asset below and tap to
             install. Android will prompt for permission to install from this
-            source on first install. The in-app update check will surface
-            future releases automatically.
+            source on first install.
+
+            **Updating:** this is a sideloaded app — there is no automatic
+            updater. Check this Releases page for new versions. To update,
+            download the newer `.apk` and tap to install over the existing
+            app; your subscriptions and alarms are preserved (same signing
+            key). A future build will add an optional in-app "check for
+            updates" control.
 
             **Verifying the APK:** confirm the SHA-256 fingerprint matches
             the one published in `docs/RELEASE.md`:

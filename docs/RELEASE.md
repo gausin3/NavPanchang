@@ -104,27 +104,59 @@ git push origin v1.0.0
 #    string matches.
 ```
 
-Once the asset is up, sideloaded users see it via the in-app update check (see "Update flow for sideloaded users" below).
+Once the asset is up, it is visible on the [Releases page](https://github.com/gausin3/NavPanchang/releases). **As of v0.1.0 there is NO in-app update check** — users update manually by downloading the newer APK and installing over the existing app (same signing key → subscriptions and alarms preserved). The updater below is a planned v0.1.1 feature, not yet built.
 
 ---
 
-## Update flow for sideloaded users
+## Update flow for sideloaded users (PLANNED — v0.1.1, NOT yet implemented)
 
-The in-app updater (`UpdateChecker` + daily `UpdateCheckWorker`) calls
-`https://api.github.com/repos/gausin3/NavPanchang/releases/latest` and compares
-the `tag_name` against `BuildConfig.VERSION_NAME`. If the tag is newer:
+> Status: **not built.** v0.1.0 ships with zero networking and no updater.
+> This is the spec for v0.1.1. Do not describe it as existing in release
+> notes, the README, or the Play data-safety form until it actually ships.
 
-- The Settings → "App updates" card shows "Update available: vX.Y.Z" with a Download button.
-- A one-shot system notification fires (dedicated channel, mutable independently of vrat alarms).
-- Tapping Download opens the APK URL in the system browser. Browser downloads → user taps the file → Android prompts "install from unknown sources" → user confirms → Android installs.
+Design (locked):
 
-The check is **opt-out via Settings**. Per [`MEMORY.md`](../MEMORY.md) "Locked decisions": no analytics, no phone-home, no telemetry. The update check is the single network call the app makes; it's a courtesy, not measurement.
+- **Opt-in, default OFF.** A Settings toggle "Automatic update checks"
+  (default **off**) plus an always-available "Check for updates" button on
+  the About screen. Default-off keeps "runs fully offline" literally true
+  out of the box — the only network call ever made is one the user
+  explicitly enabled or tapped. This is opt-**in**, not opt-out; the earlier
+  "opt-out via Settings" wording here was wrong and contradicted the
+  no-phone-home stance in [`MEMORY.md`](../MEMORY.md).
+- **Implementation:** `UpdateChecker` using `java.net.HttpURLConnection`
+  (JDK built-in — do **not** add OkHttp/Retrofit; the app has zero
+  networking dependencies today, keep it that way for one GET). Single
+  unauthenticated GET to
+  `https://api.github.com/repos/gausin3/NavPanchang/releases/latest`,
+  parse `tag_name`, strip `v`, semver-compare vs `BuildConfig.VERSION_NAME`.
+- **Trigger:** manual button always works; auto-check only if the toggle is
+  on, throttled ≤1×/24h, on app open. No background `WorkManager` job —
+  network only while the user is actively in the app.
+- **Found newer:** dialog → "Download" opens the APK asset URL in the system
+  browser → user taps the file → Android install prompt. No in-app
+  `PackageInstaller` (would need `REQUEST_INSTALL_PACKAGES` — avoid).
+- **Any failure** (offline / API down / rate-limited) → silent no-op. Never
+  blocks or degrades core offline function.
+- **When it ships:** update the README privacy bullet and the Play
+  data-safety form to disclose the optional, off-by-default, user-enabled
+  call to `api.github.com`.
 
-### The Play Store guard
+### The Play Store guard (build into the updater from day one)
 
-The app must detect when it was installed from Play Store (`getInstallerPackageName() == "com.android.vending"`) and **disable the GitHub-update card entirely** in that case. Otherwise sideloaded users who later install from Play Store would see two competing update sources.
+The updater must detect Play installs (`getInstallerPackageName() ==
+"com.android.vending"`) and **stay completely silent** there — Play updates
+the app natively, and Play policy forbids a Play-distributed app from
+self-updating by downloading an APK. Not just UX: shipping the GitHub
+self-update path in a Play build is a suspension risk.
 
-This guard is one `if` statement. **Build it into the updater from day one** — adding it later means existing GitHub-installed users keep checking GitHub forever, even if you eventually re-install them via Play Store.
+**Distribution strategy (decided):** we are **not** matching signing keys
+across channels. Once the app is live on Play Store, ship a final GitHub
+build whose update check is a **one-way bridge** — it opens the Play listing
+(`market://details?id=com.navpanchang`, https fallback) and tells the user
+to install from Play. Signatures differ, so this is a deliberate one-time
+manual migration for the (near-zero) GitHub cohort: fresh Play install, old
+sideload build removed manually, subscriptions reconfigured. Accepted
+tradeoff — avoids contorting the keystore setup for a handful of users.
 
 ---
 

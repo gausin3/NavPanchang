@@ -24,7 +24,9 @@
   geofence-triggered background refresh recomputes the next 30 days at the new
   location so sunrise times match wherever they are.
 - **Privacy-preserving.** Nothing leaves the device. No analytics, no crash-reporting
-  SDKs, no cloud sync, no ads.
+  SDKs, no cloud sync, no ads. The app makes **zero network calls** today — not even
+  an update check. A future build will add an *optional, off-by-default* "check for
+  updates" control; until you explicitly enable or tap it, the app stays fully offline.
 - **Bilingual.** English and Hindi (Devanagari) strings ship in the first release.
 
 See [ARCH.md](ARCH.md), [SPEC.md](SPEC.md), [TECH_DESIGN.md](TECH_DESIGN.md),
@@ -43,6 +45,12 @@ See [ARCH.md](ARCH.md), [SPEC.md](SPEC.md), [TECH_DESIGN.md](TECH_DESIGN.md),
   them. The sunset-anchored Pradosh Kshaya case needs a separate sunset-based
   resolution and is tracked for a follow-up release. As always, cross-check borderline
   dates against your trusted local panchang.
+- **No automatic updates yet.** This is a sideloaded app with no in-app updater in
+  v0.1.0. Watch the [Releases page](https://github.com/gausin3/NavPanchang/releases)
+  for new versions; to update, download the newer APK and tap to install over the
+  existing app (same signing key, so subscriptions and alarms are preserved). An
+  optional, off-by-default in-app update check is planned for a follow-up release;
+  once the app is on the Play Store, Play handles updates automatically.
 
 ---
 
