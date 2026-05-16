@@ -32,6 +32,20 @@ See [ARCH.md](ARCH.md), [SPEC.md](SPEC.md), [TECH_DESIGN.md](TECH_DESIGN.md),
 
 ---
 
+## Known limitations
+
+- **Pradosh + Kshaya tithi.** Pradosh (Shukla/Krishna) is observed at *pradosh-kaal*
+  (sunset). In the rare month where the Trayodashi tithi is *Kshaya* — it begins and
+  ends entirely between two sunrises, touching neither (a few times a year) — Pradosh
+  for that month is not yet shown. Every other event (Ekadashi, Purnima, Amavasya,
+  Sankashti, Vinayaka Chaturthi, Masik Shivratri) correctly surfaces Kshaya months
+  with an on-screen "tithi ends before sunrise" note instead of silently skipping
+  them. The sunset-anchored Pradosh Kshaya case needs a separate sunset-based
+  resolution and is tracked for a follow-up release. As always, cross-check borderline
+  dates against your trusted local panchang.
+
+---
+
 ## Building from source
 
 ### Prerequisites

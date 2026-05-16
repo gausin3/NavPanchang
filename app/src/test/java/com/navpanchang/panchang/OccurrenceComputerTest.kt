@@ -310,4 +310,65 @@ class OccurrenceComputerTest {
             occurrences[0].dateLocal
         )
     }
+
+    /**
+     * **Regression for the non-vrat Kshaya-skip bug.**
+     *
+     * Before the fix, `detectKshayaForDay` gated the Kshaya fallback on
+     * `rule.vratLogic`, so non-vrat monthly events (Purnima, Amavasya,
+     * Sankashti, Vinayaka, Masik Shivratri) silently vanished in any month
+     * where their tithi was Kshaya (begins after one sunrise, ends before the
+     * next, touching neither). A user subscribed to Purnima got no alarm and
+     * no explanation that month.
+     *
+     * Concrete confirmed case: **Margashirsha Purnima 2026**. Purnima tithi
+     * (15) runs 23 Dec 10:47 IST → 24 Dec 06:57 IST. At New Delhi, sunrise
+     * 23 Dec (~07:08) is before the tithi starts and sunrise 24 Dec (~07:09)
+     * is after it ends — Kshaya. Drik Panchang and three other published
+     * sources observe it on **23 Dec 2026**. Before the fix the app emitted
+     * NOTHING for December; after the fix it emits 23 Dec flagged
+     * `isKshayaContext = true` so the UI shows the "tithi ends before
+     * sunrise" note.
+     *
+     * Uses New Delhi coordinates deliberately: the bug is location-sensitive
+     * (tithi-15 ends 06:57 IST, ~2 min from Lucknow's sunrise), so the
+     * Kshaya scenario only reproduces deterministically at Delhi's longitude
+     * — which also matches the Drik reference page exactly.
+     */
+    @Test
+    fun `Purnima on a Kshaya month is surfaced with marker, not dropped (Dec 2026 New Delhi)`() {
+        val newDelhiLat = 28.6356
+        val newDelhiLon = 77.2244
+
+        val request = OccurrenceComputer.Request(
+            events = listOf(purnima),
+            startDate = LocalDate.of(2026, 12, 1),
+            endDate = LocalDate.of(2026, 12, 31),
+            latitudeDeg = newDelhiLat,
+            longitudeDeg = newDelhiLon,
+            zone = zone,
+            locationTag = "HOME",
+            isHighPrecision = false,
+            ayanamshaType = AyanamshaType.LAHIRI
+        )
+        val dec = computer.computeWindow(request).filter { it.eventId == "purnima" }
+
+        assertEquals(
+            "Margashirsha Purnima must NOT vanish in Dec 2026 — exactly one " +
+                "occurrence expected, got ${dec.map { it.dateLocal }}",
+            1,
+            dec.size
+        )
+        assertEquals(
+            "Margashirsha Purnima 2026 must be 23 Dec (Drik + 3 sources). " +
+                "Empty/other date means the non-vrat Kshaya fallback regressed.",
+            LocalDate.of(2026, 12, 23),
+            dec[0].dateLocal
+        )
+        assertTrue(
+            "The Dec 2026 Purnima is a Kshaya tithi — it must carry " +
+                "isKshayaContext=true so the UI explains it to the user.",
+            dec[0].isKshayaContext
+        )
+    }
 }

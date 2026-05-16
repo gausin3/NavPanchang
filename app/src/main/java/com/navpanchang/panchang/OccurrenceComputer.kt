@@ -133,9 +133,25 @@ class OccurrenceComputer @Inject constructor(
      * tithi-at-sunrise rule.
      *
      * For each detected Kshaya tithi, iterate the subscribed events. If the target tithi
-     * of any vrat rule matches the Kshaya tithi, emit a safe-fallback [Occurrence] for
-     * [day] (the day the tithi *started*, which is typically when it was longest-prevailing
-     * during daylight hours). Tagged `isKshayaContext = true` so the UI can explain.
+     * of any [EventRule.TithiAtSunrise] event matches the Kshaya tithi, emit a
+     * safe-fallback [Occurrence] for [day] (the day the tithi is contained within
+     * `[sunrise(day), sunrise(day+1))`, which is typically when it was prevailing during
+     * daylight). Tagged `isKshayaContext = true` so the UI surfaces the existing
+     * "tithi ends before sunrise" explanation (DayDetailSheet / EventDetailScreen /
+     * Calendar marker) instead of the event silently vanishing that month.
+     *
+     * **Coverage / known limitation:** this fallback applies to ALL
+     * [EventRule.TithiAtSunrise] events — both vrat (Ekadashi, with Dashami-Viddha
+     * handled on the normal path) and non-vrat (Purnima, Amavasya, Sankashti,
+     * Vinayaka Chaturthi, Masik Shivratri). It deliberately does NOT cover
+     * [EventRule.EveningTithi] (Pradosh): that rule is sunset/pradosh-kaal anchored,
+     * not sunrise anchored, so its Kshaya resolution needs a separate sunset-based
+     * window. Pradosh-on-a-Kshaya-Trayodashi is therefore still dropped — tracked as
+     * a v0.1.1 item, documented in the release notes. Spot-checked against Drik
+     * Panchang: the day-assignment here matches the published date in the common
+     * case (e.g. Margashirsha Purnima 2026 → 23 Dec), and where a moonrise-anchored
+     * event (Sankashti) lands a day off, the Kshaya marker tells the user to
+     * cross-check rather than the app silently omitting it.
      */
     private fun detectKshayaForDay(
         day: LocalDate,
@@ -163,12 +179,17 @@ class OccurrenceComputer @Inject constructor(
 
         val out = mutableListOf<Occurrence>()
         for (event in request.events) {
-            // Only TithiAtSunrise rules with vrat logic qualify — the traditional Kshaya
-            // fallback is specifically for vrats (Ekadashi especially). Other rules
-            // don't use the fallback.
+            // Sunrise-anchored events only. We intentionally cover BOTH vrat
+            // (Ekadashi) and non-vrat (Purnima/Amavasya/Sankashti/Vinayaka/Masik
+            // Shivratri) TithiAtSunrise rules: previously the `!vratLogic` gate here
+            // silently dropped the non-vrat monthly events in any month where their
+            // tithi was Kshaya, so e.g. a user subscribed to Purnima would get no
+            // alarm and no explanation that December. Now they get the occurrence
+            // plus the isKshayaContext marker. EveningTithi (Pradosh) is excluded
+            // by the line below — it is sunset-anchored and needs a separate path
+            // (v0.1.1; see kdoc).
             val rule = event.rule
             if (rule !is EventRule.TithiAtSunrise) continue
-            if (!rule.vratLogic) continue
             if (rule.tithiIndex != kshayaTithiIndex) continue
 
             if (alreadyEmittedVrat.contains(event.id to day)) continue

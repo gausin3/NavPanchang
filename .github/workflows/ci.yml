@@ -183,6 +183,17 @@ jobs:
             `app/src/main/assets/licenses/swisseph_NOTICE.txt` in the
             archive.
 
+            **Known limitation (Pradosh + Kshaya tithi):** Pradosh
+            (Shukla/Krishna) is observed at *pradosh-kaal* (sunset). In the
+            rare month where the Trayodashi tithi is *Kshaya* (begins and
+            ends between two sunrises, touching neither — a few times a
+            year), Pradosh for that month is not yet shown. All other events
+            — Ekadashi, Purnima, Amavasya, Sankashti, Vinayaka Chaturthi,
+            Masik Shivratri — correctly surface Kshaya months with an
+            on-screen "tithi ends before sunrise" note. The sunset-anchored
+            Pradosh Kshaya case is tracked for a follow-up release. Always
+            cross-check borderline dates with your local panchang.
+
   # ---------------------------------------------------------------------
   # Stage 4 — Deploy AAB to Play Store Internal Testing track.
   # Runs only on tag pushes AND only when PLAY_STORE_CONFIG_JSON is set
