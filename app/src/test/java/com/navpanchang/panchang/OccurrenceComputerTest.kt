@@ -259,4 +259,55 @@ class OccurrenceComputerTest {
             assertTrue("isHighPrecision must be true", occ.isHighPrecision)
         }
     }
+
+    /**
+     * **External-reference regression** for the sunrise local-date off-by-one bug.
+     *
+     * Every other test in this file pins to internal invariants ("find the date
+     * where tithi==11, then check the contract"). That's why a *consistent*
+     * off-by-one in [com.navpanchang.ephemeris.SunriseCalculator] (it ignored the
+     * `zone` parameter, anchoring the Meeus algorithm at UT-midnight instead of
+     * local-midnight) slipped past 185 green tests and only surfaced when a user
+     * compared against a paper panchang.
+     *
+     * This test pins to **published ground truth**: the Shukla Ekadashi falling
+     * in late May 2026 at Lucknow is **Nirjala Ekadashi, Wednesday 27 May 2026**
+     * (Drik Panchang and every mainstream panchang). Before the fix the app
+     * emitted 26 May. If this assertion fails, the timezone handling in
+     * SunriseCalculator regressed and every Indian user's dates are off by a day.
+     *
+     * Note: Jyeshtha 2026 is a genuine Adhik Maas (≈17 May – 15 Jun 2026);
+     * `shukla_ekadashi` has `observeInAdhik = true`, so it is correctly observed
+     * within it. Cross-checked independently against published references.
+     */
+    @Test
+    fun `Shukla Ekadashi late May 2026 at Lucknow is 27 May (external reference)`() {
+        val request = OccurrenceComputer.Request(
+            events = listOf(shuklaEkadashi),
+            startDate = LocalDate.of(2026, 5, 20),
+            endDate = LocalDate.of(2026, 5, 31),
+            latitudeDeg = lat,
+            longitudeDeg = lon,
+            zone = zone,
+            locationTag = "HOME",
+            isHighPrecision = false,
+            ayanamshaType = AyanamshaType.LAHIRI
+        )
+        val occurrences = computer.computeWindow(request)
+            .filter { it.eventId == "shukla_ekadashi" }
+
+        assertEquals(
+            "Exactly one Shukla Ekadashi expected in 20–31 May 2026, got " +
+                occurrences.map { it.dateLocal },
+            1,
+            occurrences.size
+        )
+        assertEquals(
+            "Nirjala Ekadashi 2026 must be 27 May (published reference), not " +
+                "${occurrences.firstOrNull()?.dateLocal}. A 26 May result means " +
+                "the SunriseCalculator timezone off-by-one regressed.",
+            LocalDate.of(2026, 5, 27),
+            occurrences[0].dateLocal
+        )
+    }
 }

@@ -4,6 +4,7 @@ import com.navpanchang.ephemeris.AstroMath.cosDeg
 import com.navpanchang.ephemeris.AstroMath.normalizeDegrees
 import com.navpanchang.ephemeris.AstroMath.sinDeg
 import com.navpanchang.util.AstroTimeUtils
+import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZoneOffset
@@ -68,12 +69,64 @@ class SunriseCalculator(private val engine: EphemerisEngine) {
         zone: ZoneId,
         isSet: Boolean
     ): Long? {
-        // The caller passes a local date. The Meeus algorithm anchors at 0h UT on that
-        // civil date; we then refine iteratively. Note we deliberately use the Gregorian
-        // date's 0h UT — not the local-midnight instant converted to UT — so `jd0` is
-        // aligned with the sidereal-time formula at the bottom of the method.
+        // The Meeus algorithm (in [riseOrSetForUtAnchorDate]) returns the rise/set
+        // instant that falls within the UT civil day of its anchor date. The caller,
+        // however, wants the rise/set on the requested LOCAL date in [zone].
+        //
+        // For locations far from Greenwich these are NOT the same UT day. India is
+        // UTC+5:30: local sunrise (~05:10 IST) occurs at ~23:40 UTC of the PREVIOUS
+        // UTC day. The old code anchored the algorithm at UT-midnight of `date`
+        // (the bug — `zone` was accepted but never used), so the returned instant
+        // landed on the *next* local day, shifting every tithi-anchored date by one
+        // day for all Indian users (Nirjala Ekadashi 2026 showed 26 May, not 27).
+        //
+        // We do NOT iterate-and-re-anchor: near the UT-day boundary that approach
+        // can oscillate (date D resolves to anchor D-1, the algorithm for anchor
+        // D-1 lands back on local D-1, flipping the delta sign forever) and the
+        // fallback then returns a value identical to the neighbouring day's
+        // sunrise — which downstream collapses the Kshaya sunrise-to-sunrise
+        // window to zero width (`start == end`).
+        //
+        // Instead: a sunrise happens once per ~24 h, so among the three UT-anchor
+        // dates {date-1, date, date+1} EXACTLY ONE produces an instant whose
+        // local date in [zone] equals `date`. Evaluate all three and pick that
+        // one. Deterministic, no oscillation, correct for every longitude.
+        val match = (-1L..1L)
+            .asSequence()
+            .mapNotNull { offset ->
+                riseOrSetForUtAnchorDate(
+                    date.plusDays(offset), latitudeDeg, longitudeDeg, isSet
+                )
+            }
+            .firstOrNull { utc ->
+                Instant.ofEpochMilli(utc).atZone(zone).toLocalDate() == date
+            }
+        if (match != null) return match
+
+        // No candidate mapped to the requested local date. The only way this
+        // happens is polar day/night (riseOrSetForUtAnchorDate returned null for
+        // all three anchors) — there is no sunrise on this date at this latitude.
+        return null
+    }
+
+    /**
+     * The raw Meeus Chapter 15 rise/set computation, anchored at 0h UT of
+     * [utAnchorDate]. Returns the event instant (epoch-millis UTC) that falls
+     * within that UT civil day, or `null` for polar day/night.
+     *
+     * Callers must NOT use this directly for a user-facing local date — use
+     * [riseOrSetUtc], which wraps this with the timezone date-snap correction.
+     */
+    private fun riseOrSetForUtAnchorDate(
+        utAnchorDate: LocalDate,
+        latitudeDeg: Double,
+        longitudeDeg: Double,
+        isSet: Boolean
+    ): Long? {
+        // Anchor at 0h UT of the anchor date so `jd0` is aligned with the
+        // sidereal-time formula at the bottom of the method.
         val jd0 = AstroTimeUtils.epochMillisToJulianDay(
-            date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+            utAnchorDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
         )
 
         // Meeus uses "longitude positive west" in Chapter 15. Our stored longitudes use
@@ -163,4 +216,5 @@ class SunriseCalculator(private val engine: EphemerisEngine) {
     /** [asin] clamped to the legal domain, so we don't blow up on tiny numerical overruns. */
     private fun asinSafe(x: Double): Double =
         kotlin.math.asin(x.coerceIn(-1.0, 1.0))
+
 }
