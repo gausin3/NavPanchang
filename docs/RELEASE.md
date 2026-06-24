@@ -187,14 +187,116 @@ When (if) you eventually get a Play Console developer account:
 
 ### Closed Testing → Production sequence
 
-1. Upload first AAB to Play Console as Internal Testing.
-2. Decide on Play App Signing. (Recommend yes.)
-3. Submit data-safety form, content rating questionnaire, privacy policy URL.
-4. Add 12 testers to a Closed Testing track. Send them the opt-in link.
-5. Wait 14 days while they install + use.
-6. Promote to Production via the Play Console.
+1. Upload first AAB to Play Console as Internal Testing. *(Done: v0.2.0 uploaded 2026-06-24.)*
+2. Decide on Play App Signing. (Recommend yes — let Google manage the app signing key.)
+3. Submit data-safety form, content rating questionnaire, privacy policy URL, every other App content row.
+4. Wait for Play's listing review to complete and the "temporary app name (unreviewed)" banner to clear. Typically a few hours to a few days for a new account.
+5. Promote v0.2.0 to **Closed Testing**. Add 12 testers (Closed Testing → Testers → email list or Google Group), share the opt-in link.
+6. Wait 14 **consecutive** days with the testers continuously opted in. *(See "What '14 days' actually means" below — it is NOT the relaxed install-and-engage rule.)*
+7. Apply for Production access via the gated form. Paste the three required free-text sections (template below).
+8. After Play approves the production-access application, promote the release to Production.
 
-Total elapsed time from "first upload" to "available on Play Store": ~2-3 weeks if testers are responsive.
+Total elapsed time from "first upload" to "available on Play Store": ~2-3 weeks if testers are responsive AND identity verification is already complete.
+
+### What "14 days" actually means
+
+Per Google's current help docs (verified mid-2026):
+
+- **Tester count:** 12 distinct testers.
+- **Duration:** 14 **continuous** calendar days.
+- **Metric:** testers must be **opted into the Closed Testing program continuously**. The clock is on opt-in tenure, not on app-open or session count. (Some third-party blogs claim Play now also measures engagement time — Google's official help page does not state this.)
+- **Restart trigger:** if a tester opts OUT before the 14 days are up and re-opts in later, the 14-day clock **restarts** for the whole cohort. Pick reliable people; don't churn the list.
+- **Account scope:** the requirement applies only to **personal developer accounts created after Nov 13, 2023.** Older personal accounts and organization accounts are exempt.
+- **Device requirement:** testers must use **real Android devices with genuine Google accounts.** Emulators and bot accounts do not count.
+- **Identity verification:** Settings → Developer account → Identity verification must be complete (government ID + address) before any Production promotion is possible. This is a separate workflow from the 14-day rule and should be started early — review takes a few days.
+
+### Production-access application form (paste-ready template)
+
+After the 14-day clock expires, Play surfaces an application form with three
+required free-text sections. The actual answers will be informed by what
+testers report, but here's a template + topic checklist so the moment isn't
+a from-scratch writing exercise.
+
+**Section 1 — Summary of closed test feedback and how you collected it**
+
+> Replace `[FEEDBACK_SUMMARY]` with concrete examples — one line per
+> meaningful issue raised + how it was resolved.
+
+```
+NavPanchang's Closed Testing cohort comprised 12 users who routinely observe
+Hindu vrats (fasting days) at the home-city panchang precision level the app
+targets. Testers were sourced from personal network: family members,
+practising-Hindu friends, and members of an informal religious-observance
+WhatsApp group. The cohort spanned [CITIES] and used [DEVICE_OEMS] devices.
+
+Feedback was collected via direct WhatsApp messages, voice calls, and
+a single Google Form sent at the start and end of the 14-day window. The
+form asked: (1) which observances they subscribed to, (2) whether they
+received the Planner / Observer / Parana alarms on time, (3) any sound
+issues / mis-fires / missed alarms, (4) whether the dates matched their
+paper panchang.
+
+Issues raised and resolution:
+- [FEEDBACK_SUMMARY]
+```
+
+**Section 2 — Intended audience and app value**
+
+```
+NavPanchang is targeted at adult practising Hindus who observe recurring
+vrats (Ekadashi, Purnima, Amavasya, Pradosh, Sankashti Chaturthi, Vinayaka
+Chaturthi, Masik Shivratri, Mahashivratri) and currently manage them by
+consulting a paper panchang each month. The app eliminates that friction by:
+
+- Computing the next 24 months of observances locally from a bundled
+  Swiss Ephemeris (sub-milliarcsecond accuracy 1800–2399 CE).
+- Scheduling Planner (evening before) + Observer (sunrise) + Parana
+  (fast-breaking window) alarms automatically per subscription.
+- Respecting religious-calendar nuance: Dashami-Viddha shift for Ekadashi,
+  Adhik Maas detection, Kshaya tithi safe-fallback, Harivasara quarter rule
+  for Parana windows.
+
+It is free, open source (AGPL v3), bilingual (English + Hindi Devanagari),
+and makes zero network calls during normal use. No analytics, no ads, no
+login, no cloud sync, no third-party SDKs. The intended audience is adults
+in India and the global Hindu diaspora; the app is not directed at children
+and has no UGC, messaging, or social features.
+```
+
+**Section 3 — Changes made based on testing + production readiness rationale**
+
+```
+Changes from v0.2.0 (Closed Testing) to v0.X.X (Production):
+
+- [CHANGE_LIST] — one bullet per non-trivial fix surfaced during testing.
+
+Production readiness:
+- All 12 testers received and acted on at least N vrat alarms over the
+  14-day window without missed fires (specific count: M of M expected
+  Planner + Observer + Parana alarms across the cohort).
+- No P0 bug reports during the testing window. The known limitations
+  (Pradosh on a Kshaya Trayodashi — sunset-anchored case not yet
+  implemented) are documented in the README and the live release notes;
+  testers were informed and confirmed they do not see it as a blocker.
+- 190 automated unit tests pass on every CI build, including
+  external-reference regression tests pinning Shukla Ekadashi 27 May 2026
+  (Lucknow) and Margashirsha Purnima 23 Dec 2026 (New Delhi) against Drik
+  Panchang — i.e. correctness is verified against the de-facto authority,
+  not just internal consistency.
+- App is offline-first, collects no personal data, and is signed via
+  Google Play App Signing. Privacy policy is hosted at
+  https://gausin3.github.io/NavPanchang/privacy-policy.html and discloses
+  the full data-handling story.
+
+The app is ready for Production distribution to the wider audience of
+practising Hindu observers who want a precise, offline, privacy-respecting
+panchang and vrat-alarm tool.
+```
+
+Update the bracketed placeholders with real numbers + bullets from the
+actual Closed Testing window before submitting. Do NOT paste with the
+brackets still in — Play will read that as a literal placeholder and
+flag the application as incomplete.
 
 ---
 
@@ -265,6 +367,13 @@ Contact: gaurav@navtakniq.com
 Every answer is "no" — this is the most boring questionnaire in the
 Play Console.
 
+**Category selection (at the start of the questionnaire):** pick
+**"Utility, Productivity, Communication, or Other"**. Do NOT pick "Reference,
+News, or Education" — the latter is News-grouped and Play will downstream
+ask whether this is a news app (which interferes with the rating flow even
+when you say no). Utility/Productivity is the right bucket for a
+religious-observance utility.
+
 - Violence: **No**
 - Sexual content: **No**
 - Profanity: **No**
@@ -277,32 +386,71 @@ Play Console.
 
 Expected rating: **Everyone** (PEGI 3 equivalent).
 
+> **Sequence note:** complete **Target audience and content** BEFORE the IARC
+> questionnaire. Age-bracket selection there (Ages 18+ only, Appeals to
+> children: No, Family-friendly section: No) influences which IARC sub-questions
+> Play surfaces; running them in the other order causes re-do prompts.
+
 ### Data Safety form
 
-Open Play Console → "App content" → "Data safety" → fill in:
+Open Play Console → "App content" → "Data safety" → fill in.
+
+> ⚠️ **Important — the obvious answer ("we don't collect anything") will get
+> Play to reject the listing.** Even though NavPanchang's location stays
+> on-device, the fact that the manifest declares `ACCESS_FINE_LOCATION` /
+> `ACCESS_COARSE_LOCATION` and the code reads `Location` objects via
+> `FusedLocationProviderClient` means Play classifies Location as
+> "collected" in the Data Safety vocabulary. The escape hatch is the
+> **"Processed ephemerally"** checkbox — that's how you honestly answer
+> "we read it but never retain or transmit it." Use this set of answers:
+
+**Section 1 — Data collection and security**
 
 | Question | Answer |
 |---|---|
-| Does your app collect or share any of the required user data types? | **No** |
-| Is all of the user data collected by your app encrypted in transit? | _(skipped — no data collected)_ |
+| Does your app collect or share any of the required user data types? | **Yes** (because Location qualifies — see above) |
+| Is all of the user data collected by your app encrypted in transit? | **Yes** (vacuously true — Location never leaves the device; if Play forces an answer, "Yes" is correct) |
 | Do you provide a way for users to request that their data be deleted? | **Yes — by uninstalling the app.** All app data is on-device only; there is no server data to delete. |
 | Has your data collection and security practices been independently validated against a global security standard? | **No** (we're not, and we don't claim to be) |
 
-After this question set, Play presents the per-category data type form
-(Location, Personal info, etc.). For every category the answer is the same:
-"Data type collected: **No**." The form's review will reflect the
-single-line summary "This app does not collect or share any user data."
+**Section 2 — Data types**
 
-If Play surfaces follow-up location prompts because the manifest declares
-`ACCESS_FINE_LOCATION` / `ACCESS_COARSE_LOCATION`, answer:
+Per-category answers (every category that's NOT Location):
 
-- Used for: **App functionality** (only).
-- Shared: **No.**
-- Collected: **No.** (Location stays on the device; it's used as an input to
-  the on-device sunrise/sunset calculation, not stored on a server or sent
-  anywhere.)
-- Optional or required: **Required** (the app needs a location to be useful;
-  you can pick a city manually if you deny precise GPS).
+| Category | Collected | Shared |
+|---|---|---|
+| Personal info | No | No |
+| Financial info | No | No |
+| Health and fitness | No | No |
+| Messages | No | No |
+| Photos and videos | No | No |
+| Audio files | No | No |
+| Files and docs | No | No |
+| Calendar | No | No |
+| Contacts | No | No |
+| App activity | No | No |
+| Web browsing | No | No |
+| App info and performance | No | No |
+| Device or other IDs | No | No |
+
+**Location** (the only "Yes" — fill the follow-up carefully):
+
+| Field | Answer |
+|---|---|
+| Data type | **Approximate location** AND **Precise location** (check both — manifest declares both `ACCESS_FINE` and `ACCESS_COARSE`) |
+| Collected | **Yes** |
+| Shared | **No** |
+| Processed ephemerally | **Yes** ← this is the load-bearing checkbox. It means: read into memory, used immediately, never retained or transmitted. |
+| Required or optional | **Required** (app needs a location to compute sunrise; user can pick a city manually if they deny GPS, but a location of some kind is required) |
+| Purposes | **App functionality** (only) |
+| Used for | **App functionality** — specifically, on-device computation of local sunrise / sunset / tithi boundaries. |
+
+The single-line public summary will read: "This app collects Location.
+Data is processed ephemerally and not shared. Location is required for
+app functionality."
+
+That summary is true, defensible under audit, and won't trigger Play's
+"declared permission, undeclared data" rejection.
 
 ### `USE_EXACT_ALARM` declaration (Play Console "App content" → "Alarms & reminders")
 
