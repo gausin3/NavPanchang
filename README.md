@@ -32,6 +32,7 @@
 
 See [ARCH.md](ARCH.md), [SPEC.md](SPEC.md), [TECH_DESIGN.md](TECH_DESIGN.md),
 [FEATURES.md](FEATURES.md), and [USER_GUIDE.md](USER_GUIDE.md) for the full picture.
+Version history lives in [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
