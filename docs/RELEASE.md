@@ -210,6 +210,132 @@ Per Google's current help docs (verified mid-2026):
 - **Device requirement:** testers must use **real Android devices with genuine Google accounts.** Emulators and bot accounts do not count.
 - **Identity verification:** Settings → Developer account → Identity verification must be complete (government ID + address) before any Production promotion is possible. This is a separate workflow from the 14-day rule and should be started early — review takes a few days.
 
+### Closed Testing tester onboarding (paste-ready)
+
+Send this to each of the 12 testers on day one. Replace
+`{{OPT_IN_URL}}` with the actual opt-in URL Play Console gives you on
+the Closed Testing tester list page. Replace `{{TESTING_END_DATE}}`
+with the date 14 days after you expect each tester to install — pad a
+day or two to absorb late starters.
+
+**Subject (WhatsApp / email):**
+
+```
+NavPanchang — 14-day tester help (Hindu panchang + vrat alarms)
+```
+
+**Body:**
+
+```
+Hi,
+
+Quick favour. I've built NavPanchang — a free, open-source Hindu
+panchang and vrat-alarm app for Android — and Google Play needs 12
+testers to use it for 14 continuous days before I can publish it for
+everyone. You're one of the 12 I'm asking. The app is completely free,
+forever, with no ads or data collection (zero network calls during
+normal use). Source code: https://github.com/gausin3/NavPanchang
+
+What I need you to do:
+
+1) Open this link on your Android phone (only works for the Google
+   account you've shared with me — let me know which one if you
+   haven't):
+
+      {{OPT_IN_URL}}
+
+2) Tap "Become a tester" on the page that opens. After ~15 minutes,
+   open Google Play, search "NavPanchang," and install it. (If it's
+   not showing yet, wait an hour and try again — Play takes a bit to
+   propagate the opt-in.)
+
+3) Open the app once, pick your city as Home, accept the notification
+   prompt, allow exact alarms when asked, and consider whitelisting
+   the app from battery optimization (the in-app prompt explains why
+   — sunrise alarms get deferred 15+ minutes by Doze otherwise).
+
+4) Subscribe to at least TWO observances you actually keep (e.g.
+   Shukla Ekadashi + Purnima). Leave the rest off — too many alarms
+   in a 14-day window dilutes the test signal.
+
+5) Over the next 14 days, just use the phone normally. The app will
+   fire alarms on subscribed days; tell me if any of them are
+   wrong (wrong date vs your paper panchang, fired at the wrong
+   time, didn't fire at all, fired multiple times).
+
+6) Restart your phone at least once during the 14 days. After the
+   reboot, don't open the app — wait for the next scheduled alarm
+   and confirm it still fires on time. This is the single most
+   important reliability check.
+
+7) DO NOT uninstall the app before {{TESTING_END_DATE}}. If you opt
+   out and re-opt in later, Google restarts the 14-day clock for the
+   whole group — please bear with the alarms even on days you don't
+   plan to fast. (You can mute the channel via long-press → app
+   settings if a particular sound bothers you.)
+
+Things to report (no need to be formal — WhatsApp or email is fine):
+
+- Any date that disagrees with your trusted local panchang.
+- Any alarm that fires at the wrong time, doesn't fire, or fires
+  multiple times.
+- Any crash (the app shouldn't crash — if it does, tell me what you
+  were doing).
+- The "Reliability check" row in Settings — let me know if any row
+  goes red (it might if you reboot and don't re-grant a permission).
+- Anything in the app that looks wrong, confusing, ugly, or
+  unfinished. Brutal honesty is the most valuable feedback.
+
+Known limitations to expect:
+
+- Pradosh on a Kshaya Trayodashi month is not yet shown (the rare
+  case where the tithi ends before sunrise). Cross-check with your
+  paper panchang if you observe Pradosh.
+- The ritual notification sounds in this build are placeholders
+  (procedural, ~2 s, audibly distinct but not real recordings). Real
+  bell / conch / mantra recordings ship in a follow-up release.
+- English UI ships fully; Hindi (Devanagari) ships fully. Marathi,
+  Tamil, Gujarati are available as Native-numeral options but not
+  yet as full UI languages.
+
+How to reach me with feedback or questions:
+
+- WhatsApp: (the maintainer's phone number — exposed in-app at
+  Settings → Contact us → WhatsApp)
+- Email: gaurav@navtakniq.com
+- GitHub Issues: https://github.com/gausin3/NavPanchang/issues
+  (for testers comfortable with GitHub — paste a stack trace or
+  reproduction steps and I'll take it from there)
+
+Thank you. This 14-day stretch is the gate to releasing NavPanchang
+to the rest of the world; your patience and feedback is the whole
+reason it gets to ship.
+
+— Gaurav
+```
+
+### Suggested test scenarios
+
+These are concrete things the 12 testers exercise over 14 days. The
+checklist message above gives them the simplified version; this is
+the full list you can paste into a Google Form or just check off
+yourself by reading the bug reports.
+
+| # | Scenario | Why it matters |
+|---|---|---|
+| 1 | Day 1: install, complete onboarding, pick real home city, accept POST_NOTIFICATIONS + SCHEDULE_EXACT_ALARM, consider battery-opt whitelist. | Validates the full first-launch path on real OEM ROMs. |
+| 2 | Subscribe to Shukla Ekadashi. Confirm the Planner alarm fires the evening before the next Ekadashi, the Observer fires at sunrise on the day, and the Parana alarm fires the next morning in the documented window. | Smoke-tests the dual-alarm model end-to-end. |
+| 3 | Subscribe to at least three more events (Purnima, Sankashti Chaturthi, Masik Shivratri). Open Calendar, confirm every subscribed day in the next 30 days has a marker. | Catches catalog or scheduling regressions across event classes. |
+| 4 | Pick one upcoming vrat date and cross-check the app's date and sunrise time against the tester's paper panchang or Drik Panchang. | The most important religious-correctness check. |
+| 5 | Day 3 or 4: restart phone. WITHOUT opening the app, wait for the next subscribed alarm and confirm it still fires on time. | Exercises the BootReceiver → AlarmScheduler.rearmAllPending() path landed in v0.2.0. |
+| 6 | Toggle Settings → Numerals between Latin and Native (Devanagari). Confirm every screen — Home, Calendar, Day Detail, Event Detail, Settings, alarm notifications — renders the chosen numerals consistently. | Catches localization regressions. |
+| 7 | Switch app language between English and Hindi (Settings → Language). Confirm every visible string changes (no English fallback strings leaking through Hindi screens). | Catches missing translations. |
+| 8 | Open an Event Detail screen and use the per-event sound picker. Tap inline preview for at least three sound options; pick one and verify the next alarm fires with that sound. | Validates the per-event sound picker UI + the channel-id-per-sound model. |
+| 9 | Open Settings → Contact us. Confirm the WhatsApp row opens a WhatsApp chat with the developer, and the Email row opens the user's mail client with the maintainer email pre-filled. | Both deep links must work on stock OEM launchers. |
+| 10 | Travel test (only if the tester actually moves > 100 km from home city during the 14 days): note the sunrise time shown on Home at the destination on next app open; confirm it matches the destination's published sunrise. | Travel-refresh path: Tier 2 geofence + foreground recompute. |
+| 11 | On a day when a known-tricky calendar event occurs in the testing window (Adhik Maas, Dashami-Viddha Ekadashi, Kshaya tithi month), open the Day Detail sheet and verify the Adhik / Kshaya marker is shown and the date matches the paper panchang. | Catches religious-calendar nuance regressions. |
+| 12 | Day 14 (the last day): open Settings → Reliability check. Report any row that has gone red since day 1 (e.g. exact-alarm permission revoked by the OS, battery-opt whitelist lost on an OS update). | Validates the in-app self-diagnostic stays accurate. |
+
 ### Production-access application form (paste-ready template)
 
 After the 14-day clock expires, Play surfaces an application form with three
