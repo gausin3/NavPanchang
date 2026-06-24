@@ -6,7 +6,7 @@
 > next date every month.
 
 **License:** [AGPL v3](LICENSE) • **Stack:** Kotlin + Jetpack Compose •
-**Min SDK:** 26 (Android 8) • **Target SDK:** 34
+**Min SDK:** 26 (Android 8) • **Target SDK:** 35 (Android 15)
 
 ---
 
@@ -51,6 +51,16 @@ See [ARCH.md](ARCH.md), [SPEC.md](SPEC.md), [TECH_DESIGN.md](TECH_DESIGN.md),
   existing app (same signing key, so subscriptions and alarms are preserved). An
   optional, off-by-default in-app update check is planned for a follow-up release;
   once the app is on the Play Store, Play handles updates automatically.
+- **Sideload (v0.1.x) ↔ Play Store migration.** The Play Store version (v0.2.0+)
+  is signed with a different key (Play App Signing) than the GitHub sideload APK
+  (v0.1.x, signed with the developer release keystore). They are **not in-place
+  update compatible**: if you sideloaded v0.1.x from GitHub and later want to
+  install from the Play Store, you must uninstall the sideloaded copy first.
+  Your subscriptions and alarms will **not** carry across the uninstall.
+  Re-subscribing is fast (toggle the events you observe in the Home tab) and
+  this is a one-time cost — once you're on Play, Play auto-updates handle every
+  future release for you. The reverse migration (Play → sideload) is rare and
+  follows the same uninstall-first pattern.
 
 ---
 

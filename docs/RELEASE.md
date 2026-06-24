@@ -198,6 +198,177 @@ Total elapsed time from "first upload" to "available on Play Store": ~2-3 weeks 
 
 ---
 
+## Play Console submission content (paste-ready)
+
+The Play Console will demand a handful of fields and declaration forms before
+your first AAB can graduate from Internal Testing → Closed Testing →
+Production. Everything below is the exact text you can paste, plus the
+expected answer to each questionnaire prompt. Keep this section in sync with
+the live Play Console state — when you re-edit something there, mirror it
+back here so a future re-submission is reproducible.
+
+### Privacy policy URL
+
+`https://gausin3.github.io/NavPanchang/privacy-policy.html`
+
+(Or whatever URL GitHub Pages produces for `docs/privacy-policy.md`. The
+canonical source is [`docs/privacy-policy.md`](privacy-policy.md). Update the
+URL here to whatever the Pages site actually returns once enabled.)
+
+### Store listing — Short description (≤ 80 chars)
+
+```
+Vrat alarms with sunrise-precise on-device panchang. Free. Offline. AGPL.
+```
+
+(73 chars, room to tighten further if needed.)
+
+### Store listing — Full description (≤ 4000 chars)
+
+```
+NavPanchang is a free, open-source Hindu panchang for Android — sunrise-precise vrat alarms, computed entirely on your device.
+
+WHAT IT DOES
+• Subscribe to Ekadashi (Shukla / Krishna), Purnima, Amavasya, Pradosh, Sankashti Chaturthi, Vinayaka Chaturthi, Masik Shivratri, and Mahashivratri.
+• Get an evening-before Planner reminder, a sunrise Observer alarm, and a Parana (fast-breaking) window alarm — for the next 24 months, automatically.
+• Pick a ritual sound per event: Temple bell, Conch (sankh), Bell toll, Om mantra, or Singing bowl.
+• See a clean month calendar with tithi shorthand, paksha colour, and a marker on every subscribed day.
+• Tap any day for full panchang: tithi, nakshatra, paksha, lunar month, sunrise, sunset, plus Parana times for vrat days.
+
+WHY IT'S DIFFERENT
+• 100% offline. The Swiss Ephemeris is bundled — your device computes everything, accurate to sub-milliarcsecond from 1800 to 2399.
+• Religious-calendar nuance respected. Dashami-Viddha shift for Ekadashi, Adhik Maas detection via Solar Sankranti counting, Kshaya tithi safe-fallback, Harivasara quarter rule for Parana windows.
+• Bilingual. English + Hindi (Devanagari) across every screen; Devanagari numerals optional.
+• Travels with you. Move more than 100 km from your home city and the app recomputes sunrise times at your new location on next open.
+• Free as in freedom. Released under the GNU Affero General Public License v3. The full source — including every dependency — is on GitHub.
+
+WHAT IT DOES NOT DO
+• No data collection. No analytics. No third-party SDKs. No advertising. No login. No cloud sync. There is no server.
+• Zero network calls during normal use. An optional, off-by-default "Check for updates" control will be added in a future release; until you turn it on, the app makes no network requests of any kind.
+
+ABOUT THE NAME
+"Navpanchang" — a new panchang, computed for you, where you are, for the next 24 months.
+
+OPEN SOURCE
+Source code: https://github.com/gausin3/NavPanchang
+Privacy policy: https://gausin3.github.io/NavPanchang/privacy-policy.html
+Contact: gaurav@navtakniq.com
+```
+
+### App category
+
+**Lifestyle** — closer to peer panchang / religious-observance apps than to
+"Tools," and avoids the Tools content-rating heuristic noise.
+
+### Content rating (IARC questionnaire)
+
+Every answer is "no" — this is the most boring questionnaire in the
+Play Console.
+
+- Violence: **No**
+- Sexual content: **No**
+- Profanity: **No**
+- Controlled substances (alcohol / drugs / tobacco / gambling): **No**
+- User-generated content: **No** (the app has no UGC; no in-app messages,
+  reviews, or sharing).
+- Loot boxes / gambling mechanics: **No**
+- Location sharing or user-to-user communication: **No**
+- Crude humor / scary imagery: **No**
+
+Expected rating: **Everyone** (PEGI 3 equivalent).
+
+### Data Safety form
+
+Open Play Console → "App content" → "Data safety" → fill in:
+
+| Question | Answer |
+|---|---|
+| Does your app collect or share any of the required user data types? | **No** |
+| Is all of the user data collected by your app encrypted in transit? | _(skipped — no data collected)_ |
+| Do you provide a way for users to request that their data be deleted? | **Yes — by uninstalling the app.** All app data is on-device only; there is no server data to delete. |
+| Has your data collection and security practices been independently validated against a global security standard? | **No** (we're not, and we don't claim to be) |
+
+After this question set, Play presents the per-category data type form
+(Location, Personal info, etc.). For every category the answer is the same:
+"Data type collected: **No**." The form's review will reflect the
+single-line summary "This app does not collect or share any user data."
+
+If Play surfaces follow-up location prompts because the manifest declares
+`ACCESS_FINE_LOCATION` / `ACCESS_COARSE_LOCATION`, answer:
+
+- Used for: **App functionality** (only).
+- Shared: **No.**
+- Collected: **No.** (Location stays on the device; it's used as an input to
+  the on-device sunrise/sunset calculation, not stored on a server or sent
+  anywhere.)
+- Optional or required: **Required** (the app needs a location to be useful;
+  you can pick a city manually if you deny precise GPS).
+
+### `USE_EXACT_ALARM` declaration (Play Console "App content" → "Alarms & reminders")
+
+```
+NavPanchang is a religious-observance alarm app. Its core function is firing
+vrat (Hindu fasting) alarms at astronomically computed times that have no
+substitute:
+
+  - The Planner alarm fires at a user-chosen evening time on the day before
+    a vrat, so the user can prepare (procure ingredients, plan their day).
+  - The Observer alarm fires at LOCAL SUNRISE on the vrat day. Sunrise is
+    computed on-device from the user's GPS coordinates and is the canonical
+    start of the fast in Hindu religious practice.
+  - The Parana alarm fires at the OPENING of the post-fast eating window,
+    typically the sunrise of the day after Ekadashi — within a 0–4 hour
+    window whose closing time is dictated by tithi mechanics. A Parana
+    fired 5 minutes late literally breaks the fast.
+
+These times are user-meaningful to the minute. Inexact alarms (which Android
+defers by 15+ minutes under Doze on several major OEM ROMs) are unusable for
+this purpose — a user would either miss the religious observance entirely or
+break the fast incorrectly.
+
+The app is the only app on the device firing these alarms; they're scheduled
+at user-controlled times the user explicitly subscribes to per event.
+```
+
+### `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` justification (if Play Console asks)
+
+```
+NavPanchang fires religious-observance alarms at local sunrise — typically
+between 04:50 and 07:30 IST depending on date and latitude. The device is
+almost always idle / in Doze at that hour.
+
+Empirical telemetry from Android alarm reliability studies shows
+setExactAndAllowWhileIdle() can be deferred 15+ minutes by Doze on several
+major OEM ROMs (Xiaomi, Vivo, Oppo, Samsung One UI in aggressive battery
+mode). A 15-minute delay on a sunrise vrat alarm makes the observance
+incorrect — sunrise has already passed.
+
+To deliver alarms reliably, the app prompts the user — once, on the
+in-app onboarding step, with clear explanatory text — to whitelist
+NavPanchang from battery optimization. The request is gated on user
+consent and is not silent. Users who deny the prompt can re-enable
+battery optimization at any time from system Settings; the app continues
+to function on a best-effort basis in that case.
+```
+
+### App content declarations
+
+| Question | Answer |
+|---|---|
+| Privacy policy URL | (paste the GitHub Pages URL once Pages is enabled) |
+| App access — Is all the app's functionality available without any restrictions? | **Yes** — no login, no paywall, no region lock |
+| Ads | **No ads** |
+| Content rating | (from the IARC section above) |
+| Target audience and content | **Ages 18+** — the app is religious software intended for adult observers; a children's category designation would be misleading |
+| News app | **No** |
+| COVID-19 contact-tracing or vaccination status | **No** |
+| Data safety | (from the Data safety section above) |
+| Government app | **No** |
+| Financial features | **No** |
+| Health features | **No** |
+
+---
+
 ## Failure modes and how to debug them
 
 | Symptom | Likely cause | Fix |
