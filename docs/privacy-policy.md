@@ -60,6 +60,43 @@ permanently and the app remains fully offline.
 
 This feature is not yet shipped. When it ships, this section will be updated.
 
+## Data deletion
+
+NavPanchang collects no data on any server. There is no account, no
+cloud sync, no backup we hold. The only place your data exists is on
+your own device.
+
+**To delete all NavPanchang data**, uninstall the app from your Android
+device:
+
+1. Long-press the NavPanchang icon in your launcher.
+2. Tap **Uninstall** (or drag to the "Uninstall" target, depending on
+   launcher).
+3. Confirm.
+
+Uninstalling removes:
+
+- Your **home city** (latitude / longitude / timezone).
+- Your **event subscriptions** and alarm-sound preferences.
+- Computed **occurrence dates** and the next-24-months cache.
+- App settings (language, lunar-month convention, numeral system).
+- All notifications and scheduled alarms.
+
+Android may retain a copy of the above in its
+[Auto Backup](https://developer.android.com/identity/data/autobackup)
+mechanism (so that a re-install on a new phone can restore your
+subscriptions). To delete that cloud-side Auto Backup copy as well,
+go to Google's
+[Drive backups page](https://drive.google.com/drive/backups) → find
+NavPanchang in the list → delete its backup. (That data is in *your*
+Google Drive, not ours — we never have access to it.)
+
+**If you want help with deletion, or have a question about data
+handling we don't address here**, email
+[gaurav@navtakniq.com](mailto:gaurav@navtakniq.com) and we will respond
+within a reasonable time. There is no support ticket queue because
+there is no data on our side to act on — but a human will answer.
+
 ## Children's privacy
 
 The app is not directed at children and does not knowingly collect any data
