@@ -27,6 +27,7 @@
   SDKs, no cloud sync, no ads. The app makes **zero network calls** today — not even
   an update check. A future build will add an *optional, off-by-default* "check for
   updates" control; until you explicitly enable or tap it, the app stays fully offline.
+  Full policy: <https://gausin3.github.io/NavPanchang/privacy-policy.html>.
 - **Bilingual.** English and Hindi (Devanagari) strings ship in the first release.
 
 See [ARCH.md](ARCH.md), [SPEC.md](SPEC.md), [TECH_DESIGN.md](TECH_DESIGN.md),
