@@ -101,12 +101,23 @@
 
     <issue
         id="GradleDependency"
+        message="A newer version of androidx.core:core-splashscreen than 1.0.1 is available: 1.2.0"
+        errorLine1="coreSplashscreen = &quot;1.0.1&quot;"
+        errorLine2="                   ~~~~~~~">
+        <location
+            file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
+            line="6"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
         message="A newer version of androidx.lifecycle:lifecycle-runtime-ktx than 2.8.6 is available: 2.11.0"
         errorLine1="lifecycle = &quot;2.8.6&quot;"
         errorLine2="            ~~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="6"
+            line="7"
             column="13"/>
     </issue>
 
@@ -117,7 +128,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="6"
+            line="7"
             column="13"/>
     </issue>
 
@@ -128,7 +139,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="7"
+            line="8"
             column="19"/>
     </issue>
 
@@ -139,7 +150,7 @@
         errorLine2="             ~~~~~~~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="8"
+            line="9"
             column="14"/>
     </issue>
 
@@ -150,7 +161,7 @@
         errorLine2="                    ~~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="9"
+            line="10"
             column="21"/>
     </issue>
 
@@ -161,7 +172,7 @@
         errorLine2="                 ~~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="11"
+            line="12"
             column="18"/>
     </issue>
 
@@ -172,7 +183,7 @@
         errorLine2="           ~~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="12"
+            line="13"
             column="12"/>
     </issue>
 
@@ -183,7 +194,7 @@
         errorLine2="           ~~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="12"
+            line="13"
             column="12"/>
     </issue>
 
@@ -194,7 +205,7 @@
         errorLine2="       ~~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="13"
+            line="14"
             column="8"/>
     </issue>
 
@@ -205,7 +216,7 @@
         errorLine2="       ~~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="13"
+            line="14"
             column="8"/>
     </issue>
 
@@ -216,7 +227,7 @@
         errorLine2="       ~~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="13"
+            line="14"
             column="8"/>
     </issue>
 
@@ -227,7 +238,7 @@
         errorLine2="       ~~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="13"
+            line="14"
             column="8"/>
     </issue>
 
@@ -238,7 +249,7 @@
         errorLine2="              ~~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="14"
+            line="15"
             column="15"/>
     </issue>
 
@@ -249,7 +260,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="15"
+            line="16"
             column="13"/>
     </issue>
 
@@ -260,7 +271,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="19"
+            line="20"
             column="12"/>
     </issue>
 
@@ -271,7 +282,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="21"
+            line="22"
             column="19"/>
     </issue>
 
@@ -282,7 +293,7 @@
         errorLine2="           ~~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="22"
+            line="23"
             column="12"/>
     </issue>
 
@@ -293,7 +304,7 @@
         errorLine2="                   ~~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="27"
+            line="28"
             column="20"/>
     </issue>
 
@@ -326,7 +337,7 @@
         errorLine2="       ~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="10"
+            line="11"
             column="8"/>
     </issue>
 
@@ -337,7 +348,7 @@
         errorLine2="       ~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="10"
+            line="11"
             column="8"/>
     </issue>
 
@@ -348,7 +359,7 @@
         errorLine2="       ~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="10"
+            line="11"
             column="8"/>
     </issue>
 
@@ -359,7 +370,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="16"
+            line="17"
             column="14"/>
     </issue>
 
@@ -370,7 +381,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="16"
+            line="17"
             column="14"/>
     </issue>
 
@@ -381,7 +392,7 @@
         errorLine2="             ~~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="16"
+            line="17"
             column="14"/>
     </issue>
 
@@ -392,7 +403,7 @@
         errorLine2="          ~~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="23"
+            line="24"
             column="11"/>
     </issue>
 
@@ -403,7 +414,7 @@
         errorLine2="        ~~~~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="24"
+            line="25"
             column="9"/>
     </issue>
 
@@ -414,7 +425,7 @@
         errorLine2="          ~~~~~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="25"
+            line="26"
             column="11"/>
     </issue>
 
@@ -425,7 +436,7 @@
         errorLine2="              ~~~~~~">
         <location
             file="$HOME/antigravity/NavPanchang/gradle/libs.versions.toml"
-            line="26"
+            line="27"
             column="15"/>
     </issue>
 

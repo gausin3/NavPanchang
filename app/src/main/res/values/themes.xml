@@ -6,4 +6,25 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
     </style>
+
+    <!-- Launch theme — used as the MainActivity's declared theme so Android 12+ shows
+         the system SplashScreen API (windowSplashScreen* attributes) for the first
+         frame instead of the unstyled stark-white Material default. On Android < 12
+         the androidx.core:core-splashscreen library backports the same visual down to
+         our minSdk (26), so testers see the same sandal-paper-plus-sun-mandala launch
+         across the supported range.
+
+         The actual Compose UI takes over from postSplashScreenTheme once MainActivity
+         calls installSplashScreen() in onCreate(). -->
+    <style name="Theme.NavPanchang.Starting" parent="Theme.SplashScreen">
+        <!-- Sandal-paper background, matching the launcher icon background and the
+             in-app sandal surface. Same value as @color/ic_launcher_background. -->
+        <item name="windowSplashScreenBackground">@color/ic_launcher_background</item>
+        <!-- The sun-mandala vector. Android centres it inside a ~240dp window with the
+             content area ~108dp; our foreground vector is sized exactly to that
+             coordinate system, so it renders pixel-clean. -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <!-- Once Compose mounts, swap back to the regular app theme. -->
+        <item name="postSplashScreenTheme">@style/Theme.NavPanchang</item>
+    </style>
 </resources>

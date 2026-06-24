@@ -9,6 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -107,6 +108,14 @@ class MainActivity : ComponentActivity() {
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* result handled by ReliabilityCheckSection observation */ }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Must run BEFORE super.onCreate() per the SplashScreen API contract.
+        // Installs the system splash (Android 12+) or the backported equivalent
+        // (API 26-31 via androidx.core:core-splashscreen). The Theme.NavPanchang.Starting
+        // theme declared on this activity in the manifest defines the visual
+        // (sandal-paper background + sun-mandala icon); installSplashScreen swaps
+        // the theme to Theme.NavPanchang (postSplashScreenTheme) as soon as the
+        // first Compose frame is ready, so there's no flash of unstyled content.
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         maybeRequestNotificationPermission()
