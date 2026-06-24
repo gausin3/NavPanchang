@@ -60,7 +60,11 @@
             </intent-filter>
         </activity>
 
-        <!-- Boot receiver: re-arm all pending alarms after device restart. -->
+        <!-- Boot receiver: re-arm all pending alarms after device restart, user
+             unlock (direct-boot devices), and app self-upgrade. ACTION_USER_UNLOCKED
+             is the earliest reliable point at which credential-encrypted Room
+             storage is queryable on devices with secure lockscreens — some OEMs
+             delay BOOT_COMPLETED until well after unlock, so we register both. -->
         <receiver
             android:name=".alarms.BootReceiver"
             android:enabled="true"
@@ -68,6 +72,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="android.intent.action.USER_UNLOCKED" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>

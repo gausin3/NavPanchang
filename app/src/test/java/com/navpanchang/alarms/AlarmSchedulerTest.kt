@@ -8,6 +8,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.navpanchang.data.db.NavPanchangDb
 import com.navpanchang.data.db.entities.EventDefinitionEntity
 import com.navpanchang.data.db.entities.OccurrenceEntity
+import com.navpanchang.data.db.entities.ScheduledAlarmEntity
 import com.navpanchang.data.db.entities.SubscriptionEntity
 import com.navpanchang.data.repo.AlarmRepository
 import com.navpanchang.data.repo.MetadataRepository
@@ -337,6 +338,124 @@ class AlarmSchedulerTest {
 
         scheduler.cancelForOccurrence(100L)
         assertTrue(alarmRepository.getPending(0L).isEmpty())
+    }
+
+    // ------------------------------------------------------------------
+    // rearmAllPending — boot / unlock / upgrade reliability path.
+    //
+    // This is the function BootReceiver invokes on ACTION_BOOT_COMPLETED,
+    // ACTION_USER_UNLOCKED, and ACTION_MY_PACKAGE_REPLACED to replay every
+    // surviving scheduled_alarms row into a fresh PendingIntent (Android wipes
+    // PendingIntents on reboot but the Room table is durable). Closed Testing
+    // testers reboot their phones — these tests pin the reboot path so it can't
+    // regress silently.
+    // ------------------------------------------------------------------
+
+    @Test
+    fun `rearmAllPending re-arms every pending row into the AlarmManager`() = runTest {
+        val am = context.getSystemService<AlarmManager>()!!
+        val shadow = shadowOf(am)
+
+        // Simulate a freshly rebooted device: scheduled_alarms rows survived
+        // (Room is durable across reboot) but the OS-level AlarmManager has
+        // nothing pinned. Insert three rows directly — Planner, Observer, Parana
+        // — covering the three kinds the receiver path needs to replay.
+        val plannerFire = BASE_NOW + 5L * 24 * 60 * 60 * 1000  // T+5d, within horizon
+        val observerFire = BASE_NOW + 6L * 24 * 60 * 60 * 1000
+        val paranaFire = BASE_NOW + 7L * 24 * 60 * 60 * 1000
+        alarmRepository.upsert(
+            ScheduledAlarmEntity(
+                requestCode = AlarmScheduler.requestCodeFor(100L, AlarmKind.PLANNER),
+                occurrenceId = 100L,
+                kind = AlarmKind.PLANNER.name,
+                fireAtUtc = plannerFire,
+                channelId = NotificationChannels.EVENT_REMINDERS,
+                pendingStatus = null
+            )
+        )
+        alarmRepository.upsert(
+            ScheduledAlarmEntity(
+                requestCode = AlarmScheduler.requestCodeFor(100L, AlarmKind.OBSERVER),
+                occurrenceId = 100L,
+                kind = AlarmKind.OBSERVER.name,
+                fireAtUtc = observerFire,
+                channelId = NotificationChannels.channelIdForSound("ritual_temple_bell"),
+                pendingStatus = null
+            )
+        )
+        alarmRepository.upsert(
+            ScheduledAlarmEntity(
+                requestCode = AlarmScheduler.requestCodeFor(100L, AlarmKind.PARANA),
+                occurrenceId = 100L,
+                kind = AlarmKind.PARANA.name,
+                fireAtUtc = paranaFire,
+                channelId = NotificationChannels.channelIdForSound("ritual_temple_bell"),
+                pendingStatus = null
+            )
+        )
+
+        // Pre-condition: shadow AlarmManager has nothing pinned — matches
+        // post-reboot state.
+        assertEquals(0, shadow.scheduledAlarms.size)
+
+        // Act — BootReceiver effectively does this.
+        scheduler.rearmAllPending(BASE_NOW)
+
+        // Three OS-level alarms now pinned, in the order returned by the DAO.
+        assertEquals(3, shadow.scheduledAlarms.size)
+        val triggers = shadow.scheduledAlarms.map { it.triggerAtTime }.sorted()
+        assertEquals(listOf(plannerFire, observerFire, paranaFire), triggers)
+    }
+
+    @Test
+    fun `rearmAllPending skips rows beyond the 90 day horizon`() = runTest {
+        val am = context.getSystemService<AlarmManager>()!!
+        val shadow = shadowOf(am)
+
+        val nearFire = BASE_NOW + 30L * 24 * 60 * 60 * 1000   // T+30d, inside horizon
+        val farFire = BASE_NOW + 120L * 24 * 60 * 60 * 1000   // T+120d, beyond ALARM_HORIZON_DAYS=90
+        alarmRepository.upsert(
+            ScheduledAlarmEntity(
+                requestCode = AlarmScheduler.requestCodeFor(100L, AlarmKind.PLANNER),
+                occurrenceId = 100L,
+                kind = AlarmKind.PLANNER.name,
+                fireAtUtc = nearFire,
+                channelId = NotificationChannels.EVENT_REMINDERS,
+                pendingStatus = null
+            )
+        )
+        alarmRepository.upsert(
+            ScheduledAlarmEntity(
+                requestCode = AlarmScheduler.requestCodeFor(100L, AlarmKind.OBSERVER),
+                occurrenceId = 100L,
+                kind = AlarmKind.OBSERVER.name,
+                fireAtUtc = farFire,
+                channelId = NotificationChannels.channelIdForSound("ritual_temple_bell"),
+                pendingStatus = null
+            )
+        )
+
+        scheduler.rearmAllPending(BASE_NOW)
+
+        // Only the in-horizon row was re-armed; the far one stays in the DB
+        // for the next RefreshWorker tick once the horizon catches up.
+        assertEquals(1, shadow.scheduledAlarms.size)
+        assertEquals(nearFire, shadow.scheduledAlarms[0].triggerAtTime)
+        // Both rows are still present in scheduled_alarms — we only skipped
+        // OS-level re-arming, not deletion.
+        assertEquals(2, alarmRepository.getPending(0L).size)
+    }
+
+    @Test
+    fun `rearmAllPending is a safe no-op when scheduled_alarms is empty`() = runTest {
+        val am = context.getSystemService<AlarmManager>()!!
+        val shadow = shadowOf(am)
+        assertEquals(0, alarmRepository.getPending(0L).size)
+
+        // Should not throw, should not log an error.
+        scheduler.rearmAllPending(BASE_NOW)
+
+        assertEquals(0, shadow.scheduledAlarms.size)
     }
 
     // ------------------------------------------------------------------
