@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import android.media.MediaPlayer
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.filled.PlayArrow
@@ -72,7 +72,7 @@ fun EventDetailScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
                 }
             )

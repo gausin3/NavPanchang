@@ -39,8 +39,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.navpanchang.R
-import com.navpanchang.ui.theme.StateObservingGreen
-import com.navpanchang.ui.theme.StatePreparingYellow
+import com.navpanchang.ui.theme.StateObserving
+import com.navpanchang.ui.theme.StatePreparing
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
@@ -217,7 +217,7 @@ private fun DayCellView(cell: DayCell, onClick: () -> Unit) {
                         .size(8.dp)
                         .clip(CircleShape)
                         .background(
-                            if (anyKshaya) StatePreparingYellow else StateObservingGreen
+                            if (anyKshaya) StatePreparing else StateObserving
                         )
                 )
             }

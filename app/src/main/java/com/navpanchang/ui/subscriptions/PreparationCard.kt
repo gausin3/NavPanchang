@@ -15,9 +15,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.navpanchang.R
-import com.navpanchang.ui.theme.StateObservingGreen
-import com.navpanchang.ui.theme.StateParanaCyan
-import com.navpanchang.ui.theme.StatePreparingYellow
+import com.navpanchang.ui.theme.StateObserving
+import com.navpanchang.ui.theme.StateParana
+import com.navpanchang.ui.theme.StatePreparing
 import com.navpanchang.util.rememberFormatter
 import java.time.Instant
 import java.time.ZoneId
@@ -52,7 +52,7 @@ private fun PreparingCardContent(
 ) {
     StateCard(
         modifier = modifier,
-        color = StatePreparingYellow,
+        color = StatePreparing,
         label = stringResource(R.string.state_preparing_tomorrow),
         primary = state.event.nameEn,
         secondary = state.event.nameHi,
@@ -72,7 +72,7 @@ private fun ObservingCardContent(
 ) {
     StateCard(
         modifier = modifier,
-        color = StateObservingGreen,
+        color = StateObserving,
         label = stringResource(R.string.state_observing_today),
         primary = state.event.nameEn,
         secondary = state.event.nameHi,
@@ -93,7 +93,7 @@ private fun ParanaCardContent(
     val end = Instant.ofEpochMilli(state.endUtc).atZone(zone).format(timeFormatter)
     StateCard(
         modifier = modifier,
-        color = StateParanaCyan,
+        color = StateParana,
         label = stringResource(R.string.state_parana_window),
         primary = state.event.nameEn,
         secondary = state.event.nameHi,

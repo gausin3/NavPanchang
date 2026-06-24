@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.navpanchang.R
 import com.navpanchang.alarms.BatteryOptimizationCheck
-import com.navpanchang.ui.theme.StateObservingGreen
+import com.navpanchang.ui.theme.StateObserving
 import com.navpanchang.ui.theme.StateWarning
 
 /**
@@ -103,7 +103,7 @@ fun ReliabilityCheckSection(
                 Text(
                     text = stringResource(R.string.settings_reliability_all_green),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = StateObservingGreen
+                    color = StateObserving
                 )
             } else {
                 Text(
@@ -122,7 +122,7 @@ private fun CheckRow(label: String, ok: Boolean, onFix: () -> Unit) {
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val color: Color = if (ok) StateObservingGreen else StateWarning
+        val color: Color = if (ok) StateObserving else StateWarning
         Text(
             text = if (ok) "✓" else "✗",
             color = color,
