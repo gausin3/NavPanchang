@@ -32,10 +32,15 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  *  4. The RefreshWorker recomputes Tier 2 for the new location and re-registers a new
  *     geofence around the new position (by calling back into this manager).
  *
- * **Permission gate:** background-location permission is required on Android 10+ for
- * geofences to keep working when the app is closed. If it's not granted, registration
- * silently no-ops and the app falls back to a foreground distance check via
- * [LocationProvider] on the next cold start.
+ * **Permission gate:** [Manifest.permission.ACCESS_FINE_LOCATION] is sufficient
+ * for the registration call to succeed. We do NOT request
+ * [Manifest.permission.ACCESS_BACKGROUND_LOCATION] — Play treats it as a high-risk
+ * permission that demands a declaration form + a demo video + frequent rejection
+ * cycles, which is a high cost for what is here a soft enhancement to a feature
+ * (Tier 2 recompute) that the app already handles correctly via the next-app-open
+ * fallback. Without background location, the geofence will still fire while the
+ * app is foreground / recently active; in fully-killed deep-Doze it may not, in
+ * which case the app falls back to recomputing Tier 2 on next foreground open.
  *
  * See TECH_DESIGN.md §Two-tier lookahead.
  */
@@ -49,16 +54,17 @@ class GeofenceManager @Inject constructor(
         LocationServices.getGeofencingClient(context)
     }
 
-    /** `true` if we have the permission set needed for persistent geofencing. */
-    fun canRegisterGeofences(): Boolean {
-        val fine = ContextCompat.checkSelfPermission(
-            context, Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-        val background = ContextCompat.checkSelfPermission(
-            context, Manifest.permission.ACCESS_BACKGROUND_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-        return fine && background
-    }
+    /**
+     * `true` if we hold the foreground fine-location permission. Sufficient for
+     * the GeofencingClient registration call. We deliberately do NOT also require
+     * `ACCESS_BACKGROUND_LOCATION` here — see the class kdoc for the Play-policy
+     * rationale. Geofences without BG location still fire while the app is
+     * foreground / recently active; full-kill Doze cases fall back to the
+     * next-app-open Tier 2 recompute path.
+     */
+    fun canRegisterGeofences(): Boolean = ContextCompat.checkSelfPermission(
+        context, Manifest.permission.ACCESS_FINE_LOCATION
+    ) == PackageManager.PERMISSION_GRANTED
 
     /**
      * Register a geofence of [RADIUS_METERS] radius around ([lat], [lon]) with a
@@ -68,7 +74,7 @@ class GeofenceManager @Inject constructor(
     @SuppressLint("MissingPermission")
     suspend fun registerAroundLastCalc(lat: Double, lon: Double): Boolean {
         if (!canRegisterGeofences()) {
-            Log.i(TAG, "Skipping geofence registration — background location not granted")
+            Log.i(TAG, "Skipping geofence registration — fine location not granted")
             return false
         }
 

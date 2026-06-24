@@ -16,11 +16,15 @@
     <!-- Post notifications (Android 13+). -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <!-- Location: precise for sunrise calculation, background for geofence-triggered
-         travel detection (Tier 2 recompute). -->
+    <!-- Location: foreground-only, precise for sunrise calculation. We previously
+         also requested ACCESS_BACKGROUND_LOCATION for fully-killed-state geofencing,
+         but Play treats it as a sensitive permission that demands a declaration form
+         + demo video + frequent rejection cycles — high cost. In practice the app
+         only computes Tier 2 (CURRENT) recompute on next app open after travel,
+         which works fine with foreground location only. See TECH_DESIGN.md
+         §Two-tier lookahead. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
     <!-- Re-arm alarms on reboot. -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />

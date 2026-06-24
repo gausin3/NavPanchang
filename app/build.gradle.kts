@@ -8,15 +8,23 @@ plugins {
 
 android {
     namespace = "com.navpanchang"
-    compileSdk = 34
+    // Android 15 (API 35) — the current Play Store floor for new app submissions
+    // (verified on Play Console policy page before the bump). compileSdk and
+    // targetSdk move together so we both compile against and target Android 15.
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.navpanchang"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         // versionCode is overridden by CI (github.run_number); keep a sane default for local builds.
         versionCode = (System.getenv("VERSION_CODE")?.toIntOrNull() ?: 1)
-        versionName = "0.1.0"
+        // 0.2.0 is the Play Store debut version. The GitHub sideload track stays
+        // at 0.1.0 and is signed with the local release keystore; Play uses Play
+        // App Signing, so the two channels are NOT in-place update compatible by
+        // design — moving from sideload to Play requires uninstall (the GitHub
+        // release body documents this for affected users). See docs/RELEASE.md.
+        versionName = "0.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
@@ -83,6 +91,16 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+
+    // Lint baseline — snapshot the existing warning set so PR builds only fail on
+    // NEW warnings. Drain the baseline over time (delete entries as deprecations
+    // and unused resources are cleaned up). Do NOT regenerate the baseline in CI
+    // — that would silently absorb regressions. To intentionally update the
+    // baseline after a cleanup PR, run `./gradlew :app:updateLintBaseline` locally
+    // and commit the diff.
+    lint {
+        baseline = file("lint-baseline.xml")
     }
 
     packaging {

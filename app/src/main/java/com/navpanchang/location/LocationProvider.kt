@@ -42,11 +42,6 @@ class LocationProvider @Inject constructor(
             context, Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
 
-    fun hasBackgroundLocationPermission(): Boolean =
-        ContextCompat.checkSelfPermission(
-            context, Manifest.permission.ACCESS_BACKGROUND_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-
     /**
      * Resolve the user's current location as a single-shot read. Returns `null` if:
      *  * fine location permission is denied,
